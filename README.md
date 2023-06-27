@@ -1,2 +1,2 @@
 # gciGhidra
-SEGA Dreamcast GCI parsing tool for GHIDRA
+SEGA Dreamcast GDI parsing tool for GHIDRA
