@@ -15,7 +15,8 @@ import java.util.*;
 
 public class Vectors
 {
-    static int VECTOR_SIZE = 0x100;
-    static int VECTOR_COUNT = VECTOR_SIZE / 4;
+    public static int VECTOR_SIZE = 0x100;
+    public static int VECTOR_COUNT = VECTOR_SIZE / 4;
+    public static int OFFSET = 0x000;
      
 }
