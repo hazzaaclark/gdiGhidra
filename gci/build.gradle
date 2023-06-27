@@ -1,6 +1,0 @@
-def INSTALL_DIR
-
-if (System.env.GHIDRA_INSTALL_DIR)
-{
-    INSTALL_DIR = System.env.GHIDRA_INSTALL_DIR;
-}
