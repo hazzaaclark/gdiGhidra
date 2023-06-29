@@ -4,3 +4,8 @@ if (System.env.GHIDRA_INSTALL_DIR)
 {
     INSTALL_DIR = System.env.GHIDRA_INSTALL_DIR;
 }
+
+dependencies 
+{
+    implementation files('lib/ghidra.jar')
+}
