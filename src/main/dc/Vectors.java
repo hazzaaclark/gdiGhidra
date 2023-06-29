@@ -10,8 +10,16 @@
 
 package main.dc;
 
+/* NESTED INCLUDES */
+
 import java.io.IOException;
 import main.Interfaces.*;
+
+/* GHIDRA INCLUDES */
+
+import ghidra.app.util.bin.BinaryReader;
+import ghidra.app.util.bin.StructConverter;
+import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
 
 public class Vectors
 {
@@ -32,6 +40,18 @@ public class Vectors
         "DATA_TLB_READ", "DATA_TLB_WRITE", "DATA_TLB_PRO_READ", "DATA_TLB_PRO_WRITE",
         "FPU_EXC", "PAGE_WRITE_EXC", "TRAPA", "USER_BREAK", "NO_MASK_IRQ", "MODULE_IRQ" 
     };
+    
+    /* CREATES A PUBLIC CONSTRUCTOR FOR THE LENGTH OF THE VECTOR TABLE */
+    /* SUCH THAT WHEN IT IS LESS AND EQUAL TO THE OFFSET SIZE OF THE VECTOR */
+    /* IT WILL ALLOCATE MEMORY ACCORDINGLY */
+
+    public Vectors(FlatDecompilerAPI API, BinaryReader BIN) throws IOException
+    {
+        if(BIN.length() <= VECTOR_SIZE) return;
+
+        BIN.setPointerIndex(0);     // SET ORIGIN TO 0
+        BIN.setLittleEndian(false); // LITTLE ENDIAN IS HERE FOR HEX READINGS
+    }
 
     /* RETURN THE FUNCTION METHODS BASED ON THE FUNCTION */
     /* NAME AND ADDRESS */
