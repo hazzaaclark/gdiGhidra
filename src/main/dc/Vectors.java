@@ -18,6 +18,7 @@ import main.Interfaces.*;
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
+import ghidra.app.util.bin.StructConverter;
 import ghidra.program.model.data.StructureDataType;
 import ghidra.program.model.data.DataType;
 import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
@@ -31,6 +32,8 @@ public class Vectors
     public static int VECTOR_SIZE = 0x100;
     public static int VECTOR_COUNT = VECTOR_SIZE / 4;
     public static int OFFSET = 0x000;
+
+    private VECTOR_FUNC[] VECTORS;
 
     public static String[] VECTOR_TYPES =
     {
@@ -67,6 +70,17 @@ public class Vectors
 
         BIN.setPointerIndex(0);     // SET ORIGIN TO 0
         BIN.setLittleEndian(false); // LITTLE ENDIAN IS HERE FOR HEX READINGS
+    }
+
+    /* RETURN THE TYPE OF VECTOR FROM THE STRING ARRAY */
+    /* BASED ON THE LENGTH OF THE STRING ARRAY */
+
+    /* THIS IS DETERMIEND BY THE NUMERICAL INCREASE IN AN ARBRITARY INT VALUE */
+
+    public VECTOR_FUNC GET_VECTOR_INDEX(int INDEX)
+    {
+        if(INDEX >= 0 && INDEX < VECTOR_TYPES.length) return VECTORS[INDEX];
+        return null;
     }
 
     /* RETURN THE FUNCTION METHODS BASED ON THE FUNCTION */
