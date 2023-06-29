@@ -18,7 +18,6 @@ import main.Interfaces.*;
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
-import ghidra.app.util.bin.StructConverter;
 import ghidra.program.model.data.StructureDataType;
 import ghidra.program.model.data.DataType;
 import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
