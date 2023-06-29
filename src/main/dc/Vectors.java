@@ -19,6 +19,9 @@ import main.Interfaces.*;
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.StructConverter;
+import ghidra.program.model.data.Structure;
+import ghidra.program.model.data.StructureDataType;
+import ghidra.program.model.data.DataType;
 import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
 
 public class Vectors
@@ -51,6 +54,12 @@ public class Vectors
 
         BIN.setPointerIndex(0);     // SET ORIGIN TO 0
         BIN.setLittleEndian(false); // LITTLE ENDIAN IS HERE FOR HEX READINGS
+    }
+
+    public DataType ALLOC_VECTOR_TYPE(StructureDataType VECTOR_STRUCTURE)
+    {
+        VECTOR_STRUCTURE = new StructureDataType("VECTOR_TYPES", 0);
+        return VECTOR_STRUCTURE;
     }
 
     /* RETURN THE FUNCTION METHODS BASED ON THE FUNCTION */
