@@ -11,7 +11,6 @@
 package main.dc;
 
 import java.io.IOException;
-
 import main.Interfaces.*;
 
 public class Vectors
@@ -29,6 +28,9 @@ public class Vectors
         "POWER_ON", "MANUAL_RESET", "UDI_RESET", "INSTR_TLB_EXC",
         "DATA_TLB_EXC", "BREAK_BEFORE_INSTR_EXC", "INSTR,ADDR,ERR",
         "INSTR,TLB_MISS,EXC", "INSTR,TLB_PROT,EXC", "ILLEGAL_INSTR_EXC",
+        "ILLEGAL_SLOT", "FPU_DISABLE", "DATA_ADDR_READ", "DATA_ADDR_WRITE",
+        "DATA_TLB_READ", "DATA_TLB_WRITE", "DATA_TLB_PRO_READ", "DATA_TLB_PRO_WRITE",
+        "FPU_EXC", "PAGE_WRITE_EXC", "TRAPA", "USER_BREAK", "NO_MASK_IRQ", "MODULE_IRQ" 
     };
 
     /* RETURN THE FUNCTION METHODS BASED ON THE FUNCTION */
