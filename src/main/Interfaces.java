@@ -1,3 +1,11 @@
+/* Copyright (C) Harry Clark */
+
+/* SEGA Dreamcast GCI Tool for GHIDRA */
+
+/* THIS FILE JUST PROVIDES THE NUANCES FOR THE RETURN FUNCTIONS */
+/* ASSOCIATED WITH ALLOCATING THE NAME AND ADDRESS TO THEIR RESPECTIVE */
+/* FUNCTION CALLS */
+
 package main;
 
 public interface Interfaces 
