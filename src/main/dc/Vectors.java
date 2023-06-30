@@ -1,6 +1,6 @@
 /* Copyright (C) Harry Clark */
 
-/* SEGA Dreamcast GCI Tool for GHIDRA */
+/* SEGA Dreamcast GDI Tool for GHIDRA */
 
 /* THIS FILE PERTAINS TO THE FUNCTIONALITY AND OR DECLARATION OF */
 /* THE HITACHI S4'S VECTOR TABLE */
@@ -13,12 +13,12 @@ package main.dc;
 /* NESTED INCLUDES */
 
 import java.io.IOException;
-import main.Interfaces.*;
 
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.program.model.data.StructureDataType;
+import main.dc.Interfaces.*;
 import ghidra.program.model.data.DataType;
 import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
 
