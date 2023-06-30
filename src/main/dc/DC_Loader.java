@@ -26,7 +26,14 @@ import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 
 public class DC_Loader
 {
+    /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
+
     public static int SEEK_SET = 0;
     public static int SEEK_CUR = 1;
     public static int SEEK_END = 2;
+
+    /* DE FACTO STANDARD HEX VALUES FOR CD-ROMS  */
+
+    public static long DC_BASE = 0x20000000;
+    public static long DC_INIT = 0x80000000;
 }
