@@ -36,4 +36,22 @@ public class DC_Loader
 
     public static long DC_BASE = 0x20000000;
     public static long DC_INIT = 0x80000000;
+
+    /* DEFINE THE CONSTANT BYTE OF THE INTERRUPT MASK IRQ */
+    /* THIS WORKS BY TAKING INTO ACCOUNT THE LOWER BYTES ON THE CPU */
+    /* WHICH PARSES INFORMATION BACK AND FORTH FROM THE GD DRIVE */
+
+    /* SECTION TABLE 5 - PAGE 32: https://retrocdn.net/images/6/61/SH-4_32-bit_CPU_Core_Architecture.pdf#page=32 */
+
+    public static byte[] IMASK_LEVEL = new byte[]
+    {
+        0x00, 0x00, 0x00, 0x0C,
+        0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x0C, 
+        0x01, 0x00, 0x00, 0x0C, 
+        0x00, 0x00, 0x00, 0x0C,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+
+    };
 }
