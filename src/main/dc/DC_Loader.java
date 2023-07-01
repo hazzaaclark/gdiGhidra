@@ -36,6 +36,7 @@ public class DC_Loader
 
     public static long DC_BASE = 0x20000000;
     public static long DC_INIT = 0x80000000;
+    public static String DC_LOADER = "DC GDI LOADER";
 
     /* DEFINE THE CONSTANT BYTE OF THE INTERRUPT MASK IRQ */
     /* THIS WORKS BY TAKING INTO ACCOUNT THE LOWER BYTES ON THE CPU */
@@ -52,6 +53,17 @@ public class DC_Loader
         0x00, 0x00, 0x00, 0x0C,
         0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00,
+    };
 
+    /* DEFINE THE CONSTANT BYTE OF THE PROGRAM COUNTER */
+    /* THIS PARSES THROUGH THE CONTENTS OF THE SIG SCAN */
+    /* TO VALIDATE THE 32 BIT LENGTH OF THE CONDITIONS BEING RUN */
+
+    public static byte[] SPC_SIG_SCAN = new byte[]
+    {
+        (byte)0x3F8, (byte)0x3F8, (byte)0x3F8, (byte)0x3F8,
+        0x00, 0x00, 0x00, (byte)0x00,
+        (byte)0x3FC, (byte)0x3Fc, (byte)0x3Fc, (byte)0x3FC,
+        (byte)0x04, (byte)0x04, (byte)0x04, (byte)0x04, 
     };
 }
