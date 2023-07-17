@@ -9,17 +9,11 @@ package main.dc;
 
 /* NESTED INCLUDES */
 
-import java.io.*;
-import java.util.*;
 import java.io.IOException;
 
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
-import ghidra.app.util.bin.StructConverter;
-import ghidra.program.model.data.DataType;
-import ghidra.program.model.data.Structure;
-import ghidra.program.model.data.StructureDataType;
 
 public class DC_GDRom 
 {
@@ -44,12 +38,12 @@ public class DC_GDRom
         public static final byte INEXACT = 0x02;
     }
 
-    private static long PC_INIT_CONSTRUCT = 0;
-    private static long GP_INIT_CONSTRUCT = 0;
-    private static long ROM_ADDR_CONSTRUCT = 0;
-    private static long DATA_ADDR_CONSTRUCT = 0;
-    private static long SP_INIT_CONSTRUCT = 0;
-    private static long SP_OFFSET_CONSTRUCT = 0;
+    public static long PC_INIT_CONSTRUCT = 0;
+    public static long GP_INIT_CONSTRUCT = 0;
+    public static long ROM_ADDR_CONSTRUCT = 0;
+    public static long DATA_ADDR_CONSTRUCT = 0;
+    public static long SP_INIT_CONSTRUCT = 0;
+    public static long SP_OFFSET_CONSTRUCT = 0;
 
     /*  CONSTRUCTOR TO REFER BACK TO INSIDE OF THE MASTER LOADER'S FUNCTION CALLS */
 
