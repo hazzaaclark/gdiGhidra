@@ -23,6 +23,9 @@ import java.util.*;
 
 import ghidra.app.util.Option;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
+import ghidra.app.util.bin.BinaryReader;
+import ghidra.app.util.bin.ByteProvider;
+import ghidra.app.util.opinion.LoadSpec;
 
 public class DC_Loader
 {
@@ -39,11 +42,14 @@ public class DC_Loader
     public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
     public static String DC_LOADER = "DREAMCAST GDI LOADER";
 
+    public DC_GDRom GDI;
+
     /* DEFINE THE CONSTANT BYTE OF THE INTERRUPT MASK IRQ */
     /* THIS WORKS BY TAKING INTO ACCOUNT THE LOWER BYTES ON THE CPU */
     /* WHICH PARSES INFORMATION BACK AND FORTH FROM THE GD DRIVE */
 
     /* SECTION TABLE 5 - PAGE 32: https://retrocdn.net/images/6/61/SH-4_32-bit_CPU_Core_Architecture.pdf#page=32 */
+    /* https://mc.pp.se/dc/files/h14th002d2.pdf#page=31 */
 
     public static byte[] IMASK_LEVEL = new byte[]
     {
@@ -67,4 +73,33 @@ public class DC_Loader
         (byte)0x3FC, (byte)0x3Fc, (byte)0x3Fc, (byte)0x3FC,
         (byte)0x04, (byte)0x04, (byte)0x04, (byte)0x04, 
     };
+    
+
+    /* RETURN THE NAME OF THE PLUGIN LOADER */
+
+    public static String GET_BASE_NAME()
+    {
+        return DC_LOADER;
+    }
+
+    /* THIS FUNCTIONS PERTAINS TO THE WAY IN WHICH THE GHIDRA BINARY READER */
+    /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
+    /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
+
+    public Collection<LoadSpec> LOAD_SPECIFICATION(ByteProvider BYTE, BinaryReader BINARY) throws IOException
+    {
+        /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
+        /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
+        /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
+
+        /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
+
+        List<LoadSpec> NEW_SPECS = new ArrayList<>();
+        BINARY = new BinaryReader(BYTE, true);
+
+        GDI = new DC_GDRom(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
+
+        return NEW_SPECS;
+
+    }
 }
