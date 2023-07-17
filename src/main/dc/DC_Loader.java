@@ -36,7 +36,8 @@ public class DC_Loader
 
     public static long DC_BASE = 0x20000000;
     public static long DC_INIT = 0x80000000;
-    public static String DC_LOADER = "DC GDI LOADER";
+    public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
+    public static String DC_LOADER = "DREAMCAST GDI LOADER";
 
     /* DEFINE THE CONSTANT BYTE OF THE INTERRUPT MASK IRQ */
     /* THIS WORKS BY TAKING INTO ACCOUNT THE LOWER BYTES ON THE CPU */
