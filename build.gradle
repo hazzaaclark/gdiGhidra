@@ -5,7 +5,11 @@ if (System.env.GHIDRA_INSTALL_DIR)
     INSTALL_DIR = System.env.GHIDRA_INSTALL_DIR;
 }
 
-dependencies 
+else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+	INSTALL_DIR = project.getProperty("GHIDRA_INSTALL_DIR")
+}
+
+if (INSTALL_DIR) 
 {
-    implementation files('lib/ghidra.jar')
+	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
 }
