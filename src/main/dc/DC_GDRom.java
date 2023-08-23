@@ -26,6 +26,20 @@ public class DC_GDRom
     public static final long SP_OFFSET = 0x31;
     public static boolean DATA_PARSED = false;
 
+    public static class OFFSETS
+    {
+        public static long[] TEXT_OFFSET;
+        public static long[] DATA_OFFSET;
+        public static long[] TEXT_MEM_ADDR;
+        public static long[] DATA_MEM_ADDR;
+        public static long[] TEXT_SIZE;
+        public static long[] DATA_SIZE;
+        public static boolean HAS_BSS;
+        public static long BSS_SIZE;
+        public static long BSS_MEM_ADDR;
+        public static long BSS_ENTRY;
+    }
+
     /* SEE: https://mc.pp.se/dc/files/h14th002d2.pdf#page=31 */
 
     public static class FLAGS
