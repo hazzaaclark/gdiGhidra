@@ -1,4 +1,5 @@
 def INSTALL_DIR
+def PATH_IN_ZIP
 
 if (System.env.GHIDRA_INSTALL_DIR)
 {
@@ -13,3 +14,28 @@ if (INSTALL_DIR)
 {
 	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
 }
+else
+{
+	throw new GradleException("GHIDRA_INSTALL_DIR is not defined")
+}
+
+BUILD_EXT
+{
+	extension 'zip'
+	ver ''
+
+	from (project.jar)
+	{
+		into PATH_IN_ZIP + "/lib"
+	}
+
+	from (project.projectdir)
+	{
+		exclude 'build/**'
+		exclude '*.gradle'
+		exclude 'src/**'
+
+		into PATH_IN_ZIP
+	}
+}
+
