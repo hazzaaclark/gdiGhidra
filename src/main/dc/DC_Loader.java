@@ -26,6 +26,8 @@ import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.opinion.LoadSpec;
+import ghidra.program.model.lang.LanguageCompilerSpecPair;
+import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 
 public class DC_Loader
 {
@@ -41,6 +43,7 @@ public class DC_Loader
     public static long DC_INIT = 0x80000000;
     public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
     public static String DC_LOADER = "DREAMCAST GDI LOADER";
+    public static String DC_ID = "HKIT 3030";
 
     public DC_GDRom GDI;
 
@@ -99,7 +102,54 @@ public class DC_Loader
 
         GDI = new DC_GDRom(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
 
+        if (DC_GDRom.DATA_PARSED)
+        {
+            NEW_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(DC_ID, "default"), true));
+        }
+
         return NEW_SPECS;
 
     }
+
+    /* LOCALLY DECLARED CONSTRUCTOR FOR READING THE CONTENTS OF THE HEADER */
+
+    public GDI(BinaryReader READER)
+    {
+        this.READ_HEADER(READER);
+    }
+
+    /* BEGIN TO READ THE CONTENTS OF THE 8 BITWISE LENGTH OF THE HEADER */
+    /* ESTABLISH THE TEXT OFFSET POINTER READER TO THE ORIGIN */
+
+    private static void READ_HEADER(BinaryReader READER, GDI GDI)
+    {
+        try 
+        {            
+            READER.setPointerIndex(0);
+
+            for (int i = 0; i < 7; i++)
+            {
+               GDI.OFFSETS.TEXT_OFFSET[i] += READER.readNextUnsignedInt();
+               GDI.OFFSETS.TEXT_MEM_ADDR[i] += READER.readNextUnsignedInt();
+               GDI.OFFSETS.TEXT_SIZE[i] += READER.readNextUnsignedInt();
+            }
+
+            for (int j = 0; j < 11; j++)
+            {
+                GDI.OFFSETS.DATA_OFFSET[j] += READER.readNextUnsignedInt();
+                GDI.OFFSETS.DATA_MEM_ADDR[j] += READER.readNextUnsignedInt();
+                GDI.OFFSETS.DATA_SIZE[j] += READER.readNextUnsignedInt();
+            }
+
+            GDI.OFFSETS.BSS_MEM_ADDR += READER.readNextUnsignedInt();
+            GDI.OFFSETS.BSS_SIZE += READER.readNextUnsignedInt();
+            GDI.OFFSETS.BSS_ENTRY += READER.readNextUnsignedInt();
+            GDI.OFFSETS.HAS_BSS += true;
+        } 
+        
+        catch (Exception e)  
+        {
+            throw new IOException(this, "GDI HEADER failed to read");
+        }
+    }    
 }
