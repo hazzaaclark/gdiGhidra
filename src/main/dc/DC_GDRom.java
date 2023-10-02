@@ -40,6 +40,22 @@ public class DC_GDRom
         public static long BSS_ENTRY;
     }
 
+    /* ARBITARY DATA STRUCTURE TYPE NECESSARY FOR DETERMINING */
+    /* THE CONTENTS OF THE HEADER */
+
+    /* SUCH IS THE CASE WITH ANY EXECUTABLE, THE BINARY CONTENT IS BROKEN DOWN */
+    /* INTO INITIALISATION, STACK POINTER NOTATION AND TEXT SEGMENTS */
+
+    public static final String[] HEADER_NAMES =
+    {
+        ".init", ".text", ".text1", ".text2", ".text3", ".text4", ".text5"
+    };
+
+    public static final String[] DATA_TYPES = 
+    {
+        ".bss", ".sbss", 
+    };
+
     /* SEE: https://mc.pp.se/dc/files/h14th002d2.pdf#page=31 */
 
     public static class FLAGS
