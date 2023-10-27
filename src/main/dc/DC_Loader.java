@@ -45,39 +45,6 @@ public class DC_Loader
     public static String DC_LOADER = "DREAMCAST GDI LOADER";
     public static String DC_ID = "HKIT 3030";
 
-    public DC_GDRom GDI;
-
-    /* DEFINE THE CONSTANT BYTE OF THE INTERRUPT MASK IRQ */
-    /* THIS WORKS BY TAKING INTO ACCOUNT THE LOWER BYTES ON THE CPU */
-    /* WHICH PARSES INFORMATION BACK AND FORTH FROM THE GD DRIVE */
-
-    /* SECTION TABLE 5 - PAGE 32: https://retrocdn.net/images/6/61/SH-4_32-bit_CPU_Core_Architecture.pdf#page=32 */
-    /* https://mc.pp.se/dc/files/h14th002d2.pdf#page=31 */
-
-    public static byte[] IMASK_LEVEL = new byte[]
-    {
-        0x00, 0x00, 0x00, 0x0C,
-        0x00, 0x00, 0x00, 0x00,
-        0x01, 0x00, 0x00, 0x0C, 
-        0x01, 0x00, 0x00, 0x0C, 
-        0x00, 0x00, 0x00, 0x0C,
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-    };
-
-    /* DEFINE THE CONSTANT BYTE OF THE PROGRAM COUNTER */
-    /* THIS PARSES THROUGH THE CONTENTS OF THE SIG SCAN */
-    /* TO VALIDATE THE 32 BIT LENGTH OF THE CONDITIONS BEING RUN */
-
-    public static byte[] SPC_SIG_SCAN = new byte[]
-    {
-        (byte)0x3F8, (byte)0x3F8, (byte)0x3F8, (byte)0x3F8,
-        0x00, 0x00, 0x00, (byte)0x00,
-        (byte)0x3FC, (byte)0x3Fc, (byte)0x3Fc, (byte)0x3FC,
-        (byte)0x04, (byte)0x04, (byte)0x04, (byte)0x04, 
-    };
-    
-
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
     public static String GET_BASE_NAME()
@@ -118,8 +85,11 @@ public class DC_Loader
         this.READ_HEADER(READER);
     }
 
-    /* BEGIN TO READ THE CONTENTS OF THE 8 BITWISE LENGTH OF THE HEADER */
-    /* ESTABLISH THE TEXT OFFSET POINTER READER TO THE ORIGIN */
+    /* READS THE CONTENTS OF THE HEADER */
+    /* THIS IS ASSUMING THE ARBITARY CASES ARE IN PLACE SUCH AS TEXT AND DATA */
+
+    /* THIS FUNCTION WILL LOOK OVER THE OFFSETS, MEMORY ADDRESSES, AND ARBITARY SIZE OF */
+    /* EACH RESPECTIVE SECTION */
 
     private static void READ_HEADER(BinaryReader READER, GDI GDI)
     {
@@ -151,5 +121,31 @@ public class DC_Loader
         {
             throw new IOException(this, "GDI HEADER failed to read");
         }
-    }    
+    }
+    
+    
+    /* RUNS A COROUTINE CHECK TO DETERMINE THE CORRESPONDING LOAD SPECIFICATIONS */
+    /* FROM THE DREAMCAST'S LANGUAGE COMPILER */
+
+    public Collection<LoadSpec> LOAD_SUPPORTED_SPECS(ByteProvider BYTE_PROVIDER, BinaryReader READER, long READER_LEN) throws IOException
+    {
+        List<LoadSpec> LOAD_SPECS = new ArrayList<>();
+
+        // ASSUMES THE BITWISE LENGTH OF READING FROM 16 BIT AND 32 BIT REGISTERS
+        // RELATIVE TO A 2KB FLAG
+
+        int[] READER_SIZE = {16 * 2048 || 32 * 2048};
+
+        READER_LEN += READER.length();
+
+        // PROVIDED AN ARBITARY VALUE TO REPRESENT THE READER SIZE
+        // ASSUME THAT THE SIZE MATCHES, LOAD THE SPECIFIED SPECS FROM THE BINARY
+
+        for (int SIZES : READER_SIZE)
+        {
+            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SUPERH4:HLE:32:default", "default"), true));
+        }
+
+        return LOAD_SPECS;
+    }
 }
