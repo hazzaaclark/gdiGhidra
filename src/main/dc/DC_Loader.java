@@ -63,32 +63,6 @@ public class DC_Loader
         return DC_LOADER;
     }
 
-    /* THIS FUNCTIONS PERTAINS TO THE WAY IN WHICH THE GHIDRA BINARY READER */
-    /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
-    /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
-
-    public Collection<LoadSpec> LOAD_SPECIFICATION(ByteProvider BYTE, BinaryReader BINARY) throws IOException
-    {
-        /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
-        /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
-        /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
-
-        /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
-
-        List<LoadSpec> NEW_SPECS = new ArrayList<>();
-        BINARY = new BinaryReader(BYTE, true);
-
-        GDI = new DC_GDRom(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
-
-        if (DC_GDRom.DATA_PARSED)
-        {
-            NEW_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(DC_ID, "default"), true));
-        }
-
-        return NEW_SPECS;
-
-    }
-
     /* LOCALLY DECLARED CONSTRUCTOR FOR READING THE CONTENTS OF THE HEADER */
 
     public GDI(BinaryReader READER)
