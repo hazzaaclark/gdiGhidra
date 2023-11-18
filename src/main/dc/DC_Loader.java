@@ -53,14 +53,40 @@ public class DC_Loader
     public static long DC_BASE = 0x20000000;
     public static long DC_INIT = 0x80000000;
     public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
-    public static String DC_LOADER = "DREAMCAST GDI LOADER";
-    public static String DC_ID = "HKIT 3030";
+    public static final String DC_LOADER = "DREAMCAST GDI LOADER";
+    public static final String DC_ID = "HKIT 3030";
 
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
     public static String GET_BASE_NAME()
     {
         return DC_LOADER;
+    }
+
+    /* THIS FUNCTIONS PERTAINS TO THE WAY IN WHICH THE GHIDRA BINARY READER */
+    /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
+    /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
+
+    public Collection<LoadSpec> LOAD_SPECIFICATION(ByteProvider BYTE, BinaryReader BINARY) throws IOException
+    {
+        /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
+        /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
+        /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
+
+        /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
+
+        List<LoadSpec> NEW_SPECS = new ArrayList<>();
+        BINARY = new BinaryReader(BYTE, true);
+
+        GDI = new DC_GDRom(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
+
+        if (DC_GDRom.DATA_PARSED)
+        {
+            NEW_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(DC_ID, "default"), true));
+        }
+
+        return NEW_SPECS;
+
     }
 
     /* LOCALLY DECLARED CONSTRUCTOR FOR READING THE CONTENTS OF THE HEADER */
@@ -84,27 +110,27 @@ public class DC_Loader
 
             for (int i = 0; i < 7; i++)
             {
-               GDI.OFFSETS.TEXT_OFFSET[i] += READER.readNextUnsignedInt();
-               GDI.OFFSETS.TEXT_MEM_ADDR[i] += READER.readNextUnsignedInt();
-               GDI.OFFSETS.TEXT_SIZE[i] += READER.readNextUnsignedInt();
+               GDI.OFFSETS.TEXT_OFFSET[i] = READER.readNextUnsignedInt();
+               GDI.OFFSETS.TEXT_MEM_ADDR[i] = READER.readNextUnsignedInt();
+               GDI.OFFSETS.TEXT_SIZE[i] = READER.readNextUnsignedInt();
             }
 
             for (int j = 0; j < 11; j++)
             {
-                GDI.OFFSETS.DATA_OFFSET[j] += READER.readNextUnsignedInt();
-                GDI.OFFSETS.DATA_MEM_ADDR[j] += READER.readNextUnsignedInt();
-                GDI.OFFSETS.DATA_SIZE[j] += READER.readNextUnsignedInt();
+                GDI.OFFSETS.DATA_OFFSET[j] = READER.readNextUnsignedInt();
+                GDI.OFFSETS.DATA_MEM_ADDR[j] = READER.readNextUnsignedInt();
+                GDI.OFFSETS.DATA_SIZE[j] = READER.readNextUnsignedInt();
             }
 
-            GDI.OFFSETS.BSS_MEM_ADDR += READER.readNextUnsignedInt();
-            GDI.OFFSETS.BSS_SIZE += READER.readNextUnsignedInt();
-            GDI.OFFSETS.BSS_ENTRY += READER.readNextUnsignedInt();
-            GDI.OFFSETS.HAS_BSS += true;
+            GDI.OFFSETS.BSS_MEM_ADDR = READER.readNextUnsignedInt();
+            GDI.OFFSETS.BSS_SIZE = READER.readNextUnsignedInt();
+            GDI.OFFSETS.BSS_ENTRY = READER.readNextUnsignedInt();
+            GDI.OFFSETS.HAS_BSS = true;
         } 
         
         catch (Exception e)  
         {
-            throw new IOException(this, "GDI HEADER failed to read");
+            throw new IOException("GDI HEADER failed to read");
         }
     }
     
@@ -119,7 +145,7 @@ public class DC_Loader
         // ASSUMES THE BITWISE LENGTH OF READING FROM 16 BIT AND 32 BIT REGISTERS
         // RELATIVE TO A 2KB FLAG
 
-        int[] READER_SIZE = {16 * 2048 || 32 * 2048};
+        int[] READER_SIZE = {16 * 2048, 32 * 2048};
 
         READER_LEN += READER.length();
 
