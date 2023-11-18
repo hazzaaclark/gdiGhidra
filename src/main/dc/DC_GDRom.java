@@ -14,6 +14,8 @@ import java.io.IOException;
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
+import ghidra.program.flatapi.FlatProgramAPI;
+import ghidra.program.model.address.*;
 
 public class DC_GDRom 
 {
@@ -125,11 +127,47 @@ public class DC_GDRom
     private static final void CCR_SEGMENTS()
     {
         CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000, 0x48, true, false, LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000000L, "CCN_PTEH", "Page Table Entry Address HI", log);
     }
 
     /* USER BREAK CONTROLLER SEGMENTS */
 
     private static final void UBC_SEGMENTS()
     {
+    }
+
+    /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
+    /* THE FOLLOWING SEGMENT OF CODE ACTS AS A GLOBAL VARIABLE FOR ALL ADDRESS TYPE OF ANY GIVEN LENGTH */
+
+    private static void CREATE_BITWISE_CONST(FlatProgramAPI FPA, long ADDRESS, String ADDRESS_NAME, String ADDRESS_TYPE, MessageLog LOG)
+    {
+        Address ADDRESS_ARG = FPA.toAddr(ADDRESS);
+
+        /* FIRST OF ALL, BEFORE CREATING THE PROPRIATORY SEGMENTS */
+        /* WE USED UNIT TESTING TO ENSURE THAT THE REQUIRED ARGS ARE BEING MET */
+        /* IN RELATION TO WHAT THE API IS COMMUNICATING */
+
+        try
+        {
+            FPA.createData(ADDRESS_ARG, "");
+        }
+
+        catch (IOException EXEC)
+        {
+            LOG.appendException(EXEC);
+            return;
+        }
+
+        /* AFTER WHICH, WE CREATE THE DESIGNATED PAGE TABLE DESIGNATED FOR THE GIVEN ADDRESS */
+
+        try
+        {
+            FPA.getCurrentProgram().getSymbolTable().createLabel(ADDRESS, ADDRESS_NAME, SourceType.IMPORTRED);
+        }
+
+        catch (IOException EXEC)
+        {
+
+        }
     }
 }
