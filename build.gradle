@@ -1,18 +1,18 @@
 def INSTALL_DIR
-def PATH_IN_ZIP
+def PATH_IN_ZIP 		// REPLACE WITH THE NAME OF THE PROJECT FOLDER (e.g gdiGhidra) - THIS WILL USE ALL RESPECTIVE JAR FILES
 
-if (System.env.GHIDRA_INSTALL_DIR)
+if (System.getenv().containsKey("GHIDRA_INSTALL_DIR"))
 {
-    INSTALL_DIR = System.env.GHIDRA_INSTALL_DIR;
+    INSTALL_DIR = System.getenv("GHIDRA_INSTALL_DIR");
 }
-
-else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+else if (project.hasProperty("GHIDRA_INSTALL_DIR")) 
+{
 	INSTALL_DIR = project.getProperty("GHIDRA_INSTALL_DIR")
 }
 
 if (INSTALL_DIR) 
 {
-	apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
+	apply from: new File(INSTALL_DIR).getCanonicalPath() + "/support/buildExtension.gradle"
 }
 else
 {
@@ -38,4 +38,3 @@ BUILD_EXT
 		into PATH_IN_ZIP
 	}
 }
-
