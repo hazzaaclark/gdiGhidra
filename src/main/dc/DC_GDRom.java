@@ -12,8 +12,6 @@ package gdi;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.lang3.ObjectUtils.Null;
-
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
