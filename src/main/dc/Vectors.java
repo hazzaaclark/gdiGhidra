@@ -13,6 +13,9 @@ package main.dc;
 /* NESTED INCLUDES */
 
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /* GHIDRA INCLUDES */
 
@@ -21,6 +24,7 @@ import ghidra.program.model.data.StructureDataType;
 import main.dc.Interfaces.*;
 import ghidra.program.model.data.DataType;
 import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
+import ghidra.app.util.Option;
 
 public class Vectors
 {
@@ -31,6 +35,7 @@ public class Vectors
     public static int VECTOR_SIZE = 0x100;
     public static int VECTOR_COUNT = VECTOR_SIZE / 4;
     public static int OFFSET = 0x000;
+    private static final String VBR_OPTION = "VBR";
 
     private VECTOR_FUNC[] VECTORS;
 
@@ -99,6 +104,25 @@ public class Vectors
         {
             return FUNCTION.NAME;
         }
-    } 
-     
+    }
+
+    /* THIS FUNCTION PERTAINS TOWARDS THE INITIALISATION OF THE CPU'S */
+    /* VECTOR BASED REGISTERS */
+
+    /* THIS IS BY CONCATENEATING A TYPE TO CONVERT THE DESIGNATED VBR STRING */
+    /* INTO A MUTABLE TYPE */
+
+    @Override
+    public static class VBR_SUFFIX extends Option
+    {
+        public VBR_SUFFIX(Object VALUE)
+        {
+            super(VBR_OPTION, VALUE, String.class, NULL, "-VBR");
+        }
+
+        public static Option COPY_SUFFIX()
+        {
+            return new VBR_OPTION(getValue());
+        }
+    }
 }
