@@ -26,7 +26,7 @@ import ghidra.program.model.data.DataType;
 import ghidra.app.decompiler.flatapi.FlatDecompilerAPI;
 import ghidra.app.util.Option;
 
-public class Vectors
+public abstract class Vectors
 {
     /* CREATE PUBLIC UTILITY AKIN TO C'S MACROS */
     /* THIS ALLOWS GHIDRA TO DETERMINE THE HEX VALUES */
