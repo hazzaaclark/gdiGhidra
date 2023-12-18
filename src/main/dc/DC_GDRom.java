@@ -10,6 +10,7 @@ package main.dc;
 /* NESTED INCLUDES */
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /* GHIDRA INCLUDES */
 
@@ -116,7 +117,7 @@ public class DC_GDRom
     /* THE FLAG VALUE */
     /* AND BOOLEAN EXPRESSIONS TO DETERMINE WHETHER ALL OF THE ABOVE HAS BEEN ACCOUNTED FOR */
 
-    private static final void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, MessageLog LOG)
+    private static final void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, Long ADDRESS, Long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
     {
         CCR_SEGMENTS(FPA, LOG);
         UBC_SEGMENTS(FPA, LOG);
@@ -124,16 +125,18 @@ public class DC_GDRom
 
     /* CONDITION CODE REGISTER SEGMENTS */
 
-    private static final void CCR_SEGMENTS()
+    private static final void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
-        CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000, 0x48, true, false, LOG);
-        CREATE_BITWISE_CONST(FPA, 0xFF000000L, "CCN_PTEH", "Page Table Entry Address HI", log);
+        CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000L, 0x48, true, false, LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000004L, "CCN_PTEH", "Page Table Entry Address HI", log);
     }
 
     /* USER BREAK CONTROLLER SEGMENTS */
 
-    private static final void UBC_SEGMENTS()
+    private static final void UBC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
+        CREATE_BASE_SEGMENT(FPA, null, "UBC", 0xFF200000L, 0x24, true, false, LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200000L, BREAK_ADDRESS_A, "Break Address Register A", LOG);
     }
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
