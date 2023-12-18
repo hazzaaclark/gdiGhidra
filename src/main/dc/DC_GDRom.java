@@ -5,18 +5,23 @@
 /* THIS FILE PERTAINS TO THE FUNCTIONALITY OF LOADING THE INNATE */
 /* CONTENTS OF THE GDI ROM RESPECTIVELY */
 
-package main.dc;
+package gdi;
 
 /* NESTED INCLUDES */
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.lang3.ObjectUtils.Null;
+
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.*;
+import ghidra.program.model.symbol.SourceType;
+import ghidra.util.exception.InvalidInputException;
+import ghidra.app.util.importer.MessageLog;
 
 public class DC_GDRom 
 {
@@ -117,7 +122,7 @@ public class DC_GDRom
     /* THE FLAG VALUE */
     /* AND BOOLEAN EXPRESSIONS TO DETERMINE WHETHER ALL OF THE ABOVE HAS BEEN ACCOUNTED FOR */
 
-    private static final void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, Long ADDRESS, Long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
+    private static void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, long ADDRESS, long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
     {
         CCR_SEGMENTS(FPA, LOG);
         UBC_SEGMENTS(FPA, LOG);
@@ -125,10 +130,10 @@ public class DC_GDRom
 
     /* CONDITION CODE REGISTER SEGMENTS */
 
-    private static final void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    private static void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000L, 0x48, true, false, LOG);
-        CREATE_BITWISE_CONST(FPA, 0xFF000004L, "CCN_PTEH", "Page Table Entry Address HI", log);
+        CREATE_BITWISE_CONST(FPA, 0xFF000004L, "CCN_PTEH", "Page Table Entry Address HI", LOG);
     }
 
     /* USER BREAK CONTROLLER SEGMENTS */
@@ -136,7 +141,7 @@ public class DC_GDRom
     private static final void UBC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "UBC", 0xFF200000L, 0x24, true, false, LOG);
-        CREATE_BITWISE_CONST(FPA, 0xFF200000L, BREAK_ADDRESS_A, "Break Address Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200000L, "BREAK_ADDRESS_A", "Break Address Register A", LOG);
     }
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
@@ -150,27 +155,31 @@ public class DC_GDRom
         /* WE USED UNIT TESTING TO ENSURE THAT THE REQUIRED ARGS ARE BEING MET */
         /* IN RELATION TO WHAT THE API IS COMMUNICATING */
 
-        try
+        try 
         {
-            FPA.createData(ADDRESS_ARG, "");
+            FPA.createDWord(ADDRESS_ARG);
         }
 
-        catch (IOException EXEC)
+        catch (Exception EXEC) 
         {
             LOG.appendException(EXEC);
             return;
         }
 
         /* AFTER WHICH, WE CREATE THE DESIGNATED PAGE TABLE DESIGNATED FOR THE GIVEN ADDRESS */
+        /* THIS IS BY ASSUMING THAT GIVEN THE CURRENT PROGRAM ARGUMENTS, THE PAGE TABLE WILL CREATED */
+        /* WHICH WILL BE DESIGNATED BACK TOWARDS THE PROGRAM */
+
+        /* OTHERWISE, NO INPUT WILL BE READ AND NO ARGS WILL BE PASSED */
 
         try
         {
-            FPA.getCurrentProgram().getSymbolTable().createLabel(ADDRESS, ADDRESS_NAME, SourceType.IMPORTRED);
+            FPA.getCurrentProgram().getSymbolTable().createLabel(ADDRESS_ARG, ADDRESS_TYPE, SourceType.IMPORTED);
         }
 
-        catch (IOException EXEC)
+        catch (InvalidInputException INVALID_EXEC)
         {
-
+            LOG.appendException(INVALID_EXEC);
         }
     }
 }
