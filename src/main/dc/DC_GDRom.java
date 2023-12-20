@@ -131,7 +131,22 @@ public class DC_GDRom
     private static void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000L, 0x48, true, false, LOG);
-        CREATE_BITWISE_CONST(FPA, 0xFF000004L, "CCN_PTEH", "Page Table Entry Address HI", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000000L, "CCR_PTEH", "Page Table Entry Address HI", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000004L, "CCR_PTEL", "Page Table Entry Address LO", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000008L, "CCR_TTB", "Translation Table Base Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF00000CL, "CCR_TEA", "TLB Exception Address Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000010L, "CCR_MEM", "MMU Control Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000014L, "CCR_BASRA", "Break ASID Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000018L, "CCR_BASRB", "Break ASID Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF00001CL, "CCR_BASE", "Condition Code Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF000020L, "CCR_TRA", "TRAP Register A Exception", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x00000024L, "CCR_EXEC_EVT", "Exception Event Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x00000028L, "CCR_INT_EVT", "Interrupt Event Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x00000030L, "CCR_PVR", "Processor Version Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x00000034L, "CCR_PTEA", "Page Table Entry Assistance Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x00000038L, "CCR_QACR0", "Queue Address Control Register 0", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x0000003CL, "CCR_QACR1", "Queue Address Control Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0x00000044L, "CCR_PRR", "Product Register", LOG);
     }
 
     /* USER BREAK CONTROLLER SEGMENTS */
