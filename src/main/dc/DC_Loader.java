@@ -12,7 +12,7 @@
 /* SEE SEGA DREAMCAST HARDWARE SPECIFICATION SECTION 6: */
 /* https://segaretro.org/images/8/8b/Dreamcast_Hardware_Specification_Outline.pdf#page=35 */
 
-package main.dc;
+package gdi;
 
 /* NESTED INCLUDES */
 
@@ -32,6 +32,8 @@ import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
+import ghidra.program.model.lang.LanguageID;
+import ghidra.program.model.lang.CompilerSpecID;
 import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.MemoryBlock;
@@ -44,6 +46,7 @@ public class DC_Loader
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
+    public static DC_GDRom GDI;
     public static int SEEK_SET = 0;
     public static int SEEK_CUR = 1;
     public static int SEEK_END = 2;
@@ -56,6 +59,9 @@ public class DC_Loader
     public static final String DC_LOADER = "DREAMCAST GDI LOADER";
     public static final String DC_ID = "HKIT 3030";
 
+    private static final LanguageID CPU_ID = new LanguageID("SUPERH4:LE:32:default");
+    private static final CompilerSpecID CPU_SPEC_ID = new CompilerSpecID("default");
+
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
     public static String GET_BASE_NAME()
@@ -63,12 +69,21 @@ public class DC_Loader
         return DC_LOADER;
     }
 
+    /* LOCALLY DECLARED CONSTRUCTOR FOR READING THE CONTENTS OF THE HEADER */
+    
+    public static void CONSTRUCT_ROM(BinaryReader READER)
+    {
+        READ_HEADER(READER, GDI);
+    }
+
     /* THIS FUNCTIONS PERTAINS TO THE WAY IN WHICH THE GHIDRA BINARY READER */
     /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
     /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
 
-    public Collection<LoadSpec> LOAD_SPECIFICATION(ByteProvider BYTE, BinaryReader BINARY) throws IOException
+    public Collection<LoadSpec> LOAD_SPECIFICATION(ByteProvider BYTE)
     {
+        BinaryReader BINARY = new BinaryReader(BYTE, true);
+
         /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
         /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
         /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
@@ -78,22 +93,13 @@ public class DC_Loader
         List<LoadSpec> NEW_SPECS = new ArrayList<>();
         BINARY = new BinaryReader(BYTE, true);
 
-        GDI = new DC_GDRom(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
+        CONSTRUCT_ROM(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
 
-        if (DC_GDRom.DATA_PARSED)
-        {
-            NEW_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(DC_ID, "default"), true));
-        }
+        LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
 
+        NEW_SPECS.add(new LoadSpec(null, 0, CPU_SPEC_PAIR, false));
         return NEW_SPECS;
 
-    }
-
-    /* LOCALLY DECLARED CONSTRUCTOR FOR READING THE CONTENTS OF THE HEADER */
-
-    public GDI(BinaryReader READER)
-    {
-        this.READ_HEADER(READER);
     }
 
     /* READS THE CONTENTS OF THE HEADER */
@@ -102,35 +108,37 @@ public class DC_Loader
     /* THIS FUNCTION WILL LOOK OVER THE OFFSETS, MEMORY ADDRESSES, AND ARBITARY SIZE OF */
     /* EACH RESPECTIVE SECTION */
 
-    private static void READ_HEADER(BinaryReader READER, GDI GDI)
+    private static void READ_HEADER(BinaryReader READER, DC_GDRom GDI) 
     {
+        MessageLog LOG = new MessageLog();
+
         try 
         {            
             READER.setPointerIndex(0);
 
             for (int i = 0; i < 7; i++)
             {
-               GDI.OFFSETS.TEXT_OFFSET[i] = READER.readNextUnsignedInt();
-               GDI.OFFSETS.TEXT_MEM_ADDR[i] = READER.readNextUnsignedInt();
-               GDI.OFFSETS.TEXT_SIZE[i] = READER.readNextUnsignedInt();
+               GDI.TEXT_OFFSET[i] = READER.readNextUnsignedInt();
+               GDI.TEXT_MEM_ADDR[i] = READER.readNextUnsignedInt();
+               GDI.TEXT_SIZE[i] = READER.readNextUnsignedInt();
             }
 
             for (int j = 0; j < 11; j++)
             {
-                GDI.OFFSETS.DATA_OFFSET[j] = READER.readNextUnsignedInt();
-                GDI.OFFSETS.DATA_MEM_ADDR[j] = READER.readNextUnsignedInt();
-                GDI.OFFSETS.DATA_SIZE[j] = READER.readNextUnsignedInt();
+                GDI.DATA_OFFSET[j] = READER.readNextUnsignedInt();
+                GDI.DATA_MEM_ADDR[j] = READER.readNextUnsignedInt();
+                GDI.DATA_SIZE[j] = READER.readNextUnsignedInt();
             }
 
-            GDI.OFFSETS.BSS_MEM_ADDR = READER.readNextUnsignedInt();
-            GDI.OFFSETS.BSS_SIZE = READER.readNextUnsignedInt();
-            GDI.OFFSETS.BSS_ENTRY = READER.readNextUnsignedInt();
-            GDI.OFFSETS.HAS_BSS = true;
+            GDI.BSS_MEM_ADDR = READER.readNextUnsignedInt();
+            GDI.BSS_SIZE = READER.readNextUnsignedInt();
+            GDI.BSS_ENTRY = READER.readNextUnsignedInt();
+            GDI.HAS_BSS = true;
         } 
         
-        catch (Exception e)  
+        catch (Exception EXEC)  
         {
-            throw new IOException("GDI HEADER failed to read");
+            LOG.appendException(EXEC);
         }
     }
     
@@ -154,7 +162,7 @@ public class DC_Loader
 
         for (int SIZES : READER_SIZE)
         {
-            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SUPERH4:HLE:32:default", "default"), true));
+            LOAD_SPECS.add(new LoadSpec(null, READER_LEN, null, false));
         }
 
         return LOAD_SPECS;
