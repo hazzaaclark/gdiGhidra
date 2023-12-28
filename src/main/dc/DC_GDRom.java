@@ -32,19 +32,16 @@ public class DC_GDRom
     public static final long SP_OFFSET = 0x31;
     public static boolean DATA_PARSED = false;
 
-    public static class OFFSETS
-    {
-        public static long[] TEXT_OFFSET;
-        public static long[] DATA_OFFSET;
-        public static long[] TEXT_MEM_ADDR;
-        public static long[] DATA_MEM_ADDR;
-        public static long[] TEXT_SIZE;
-        public static long[] DATA_SIZE;
-        public static boolean HAS_BSS;
-        public static long BSS_SIZE;
-        public static long BSS_MEM_ADDR;
-        public static long BSS_ENTRY;
-    }
+    public static long[] TEXT_OFFSET;
+    public static long[] DATA_OFFSET;
+    public static long[] TEXT_MEM_ADDR;
+    public static long[] DATA_MEM_ADDR;
+    public static long[] TEXT_SIZE;
+    public static long[] DATA_SIZE;
+    public static boolean HAS_BSS;
+    public static long BSS_SIZE;
+    public static long BSS_MEM_ADDR;
+    public static long BSS_ENTRY;
 
     /* ARBITARY DATA STRUCTURE TYPE NECESSARY FOR DETERMINING */
     /* THE CONTENTS OF THE HEADER */
@@ -154,7 +151,15 @@ public class DC_GDRom
     private static final void UBC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "UBC", 0xFF200000L, 0x24, true, false, LOG);
-        CREATE_BITWISE_CONST(FPA, 0xFF200000L, "BREAK_ADDRESS_A", "Break Address Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200000L, "UBC_BARA", "Break Address Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200004L, "UBC_BAMRA", "Break Address Mask Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200008L, "UBC_BBRA", "Break Bus Cycle Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF20000CL, "UBC_BARB", "Break Address Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200010L, "UBC_BAMRB", "Break Address Mask Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200014L, "UBC_BBRB", "Break Bus Cycle Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200018L, "UBC_BDRB", "Break Data Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF20001CL, "UBC_BDMRB", "Break Data Mask Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF200020L, "UBC_BRCR", "Break Register Control", LOG);
     }
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
