@@ -12,8 +12,6 @@ package gdi;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.checkerframework.checker.units.qual.C;
-
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
@@ -185,7 +183,30 @@ public class DC_GDRom
         CREATE_BITWISE_CONST(FPA, 0xFF8000040L, "BSC_PCTRB", "Port Control Register B", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF8000044L, "BSC_PDTRB", "Port Data Register B", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF8000048L, "BSC_GPIO", "GPIO Control Register ", LOG);
+    }
 
+    /* DYNAMIC MEMORY ALLOCATION SEGMENTS */
+
+    private static final void DMA_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    {
+        CREATE_BASE_SEGMENT(FPA, null, "DMA", 0xFFA00000L, 0x44, true, false, LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00000L, "DMA_SAR0", "DMA Source Address Register 0", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00004L, "DMA_DAR0", "DMA Destination Address Register 0", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00008L, "DMA_TCR0", "DMA Transfer Count Register 0", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA0000CL, "DMA_CHCR0", "DMA Channel Control Register 0", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00010L, "DMA_SAR1", "DMA Source Address Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00014L, "DMA_DAR1", "DMA Destination Address Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00018L, "DMA_TCR1", "DMA Transfer Count Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA0001CL, "DMA_CHCR1", "DMA Channel Control Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00020L, "DMA_SAR2", "DMA Source Address Register 2", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00024L, "DMA_DAR2", "DMA Destination Address Register 2", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00028L, "DMA_TCR2", "DMA Transfer Count Register 2", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA0002CL, "DMA_CHRC2", "DMA Channel Control Register 2", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00030L, "DMA_SAR3", "DMA Source Address Register 3", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00032L, "DMA_DAR3", "DMA Destination Address Register 3", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00034L, "DMA_TCR3", "DMA Transfer Count Register 3", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00038L, "DMA_CHCR3", "DMA Channel Control Register 3", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFA00040L, "DMA_OR", "DMA Operation Register", LOG);
     }
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
