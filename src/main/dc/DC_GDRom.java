@@ -12,6 +12,8 @@ package gdi;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.checkerframework.checker.units.qual.C;
+
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.bin.BinaryReader;
@@ -160,6 +162,30 @@ public class DC_GDRom
         CREATE_BITWISE_CONST(FPA, 0xFF200018L, "UBC_BDRB", "Break Data Register B", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF20001CL, "UBC_BDMRB", "Break Data Mask Register B", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF200020L, "UBC_BRCR", "Break Register Control", LOG);
+    }
+
+    /* BUS CONTROL SEGMENTS */
+
+    private static final void BSC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    {
+        CREATE_BASE_SEGMENT(FPA, null, "BSC", 0xFF8000000L, 0x4C, true, false, LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000000L, "BSC_R1", "Bus Control Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000004L, "BSC_R2", "Bus Control Register 2", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000008L, "BSC_WCR1", "Wait Control Register 1", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF800000CL, "BSC_WCR2", "Wait Control Register 2", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000010L, "BSC_WCR3", "Wait Control Register 3", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000014L, "BSC_MCR", "Memory Control Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000018L, "BSC_PCR", "PCMIA Control Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF800001CL, "BSC_RTSCR", "Refresh Timer Control/State Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000020L, "BSC_RTCNT", "Refresh Timer Counter", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000024L, "BSC_RTCOR", "Refresh Timer Constant Counter", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000028L, "BSC_RFCNT", "Refresh Count Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF800002CL, "BSC_PCTRA", "Port Control Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000030L, "BSC_PDTRA", "Port Data Register A", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000040L, "BSC_PCTRB", "Port Control Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000044L, "BSC_PDTRB", "Port Data Register B", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFF8000048L, "BSC_GPIO", "GPIO Control Register ", LOG);
+
     }
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
