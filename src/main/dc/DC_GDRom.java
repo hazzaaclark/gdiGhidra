@@ -43,6 +43,8 @@ public class DC_GDRom
     public static long BSS_MEM_ADDR;
     public static long BSS_ENTRY;
 
+    private static BinaryReader READER;
+
     /* ARBITARY DATA STRUCTURE TYPE NECESSARY FOR DETERMINING */
     /* THE CONTENTS OF THE HEADER */
 
@@ -80,25 +82,25 @@ public class DC_GDRom
 
     /*  CONSTRUCTOR TO REFER BACK TO INSIDE OF THE MASTER LOADER'S FUNCTION CALLS */
 
-    public DC_GDRom(BinaryReader BINARY) throws IOException
+    public DC_GDRom() throws IOException
     {
-        PARSE_DATA(BINARY);
+        PARSE_DATA();
     }
 
     /* PARSE THE DATA RELATIVE TO THE HITACHI S4'S FUNCTIONALITY */
     /* THIS TAKES INTO ACCOUNT THE 32 BITWISE LENGTH OF THE CPU */
     /* AND THEIR RESPECTIVE REGISTERS AND THEIR INNATE FUNCTIONS */
 
-    public static void PARSE_DATA(BinaryReader BINARY) throws IOException
+    public static void PARSE_DATA() throws IOException
     {
-        if(BINARY.length() < HEADER_SIZE) return;
+        if(READER.length() < HEADER_SIZE) return;
 
-        PC_INIT_CONSTRUCT = BINARY.readUnsignedInt(PC_INIT);
-        GP_INIT_CONSTRUCT = BINARY.readUnsignedInt(GP_INIT);
-        ROM_ADDR_CONSTRUCT = BINARY.readUnsignedInt(ROM_ADDR);
-        DATA_ADDR_CONSTRUCT = BINARY.readUnsignedInt(DATA_ADDR);
-        SP_INIT_CONSTRUCT = BINARY.readUnsignedInt(SP_INIT);
-        SP_OFFSET_CONSTRUCT = BINARY.readUnsignedInt(SP_OFFSET);
+        PC_INIT_CONSTRUCT = READER.readUnsignedInt(PC_INIT);
+        GP_INIT_CONSTRUCT = READER.readUnsignedInt(GP_INIT);
+        ROM_ADDR_CONSTRUCT = READER.readUnsignedInt(ROM_ADDR);
+        DATA_ADDR_CONSTRUCT = READER.readUnsignedInt(DATA_ADDR);
+        SP_INIT_CONSTRUCT = READER.readUnsignedInt(SP_INIT);
+        SP_OFFSET_CONSTRUCT = READER.readUnsignedInt(SP_OFFSET);
 
         DATA_PARSED = true;
     }
@@ -117,15 +119,22 @@ public class DC_GDRom
     /* THE FLAG VALUE */
     /* AND BOOLEAN EXPRESSIONS TO DETERMINE WHETHER ALL OF THE ABOVE HAS BEEN ACCOUNTED FOR */
 
-    private static void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, long ADDRESS, long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
+        /* FROM HERE, I AM ABLE TO ACCESS ALL OF THE PRE-REQUISITIES */
+        /* ESTABLISHED IN THIS CORRESPONDING FILE */
+        /* ALL WITHIN THE INTEREST OF BEING ABLE TO LOAD THESE SEGMENT STREAMS INTO THE API */
+
+    public static void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, long ADDRESS, long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
     {
         CCR_SEGMENTS(FPA, LOG);
         UBC_SEGMENTS(FPA, LOG);
+        BSC_SEGMENTS(FPA, LOG);
+        UBC_SEGMENTS(FPA, LOG);
+        DMA_SEGMENTS(FPA, LOG);
     }
 
     /* CONDITION CODE REGISTER SEGMENTS */
 
-    private static void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    public static final void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000L, 0x48, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF000000L, "CCR_PTEH", "Page Table Entry Address HI", LOG);
@@ -207,6 +216,18 @@ public class DC_GDRom
         CREATE_BITWISE_CONST(FPA, 0xFFA00034L, "DMA_TCR3", "DMA Transfer Count Register 3", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFA00038L, "DMA_CHCR3", "DMA Channel Control Register 3", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFA00040L, "DMA_OR", "DMA Operation Register", LOG);
+    }
+
+    /* CONTROL SEGMENTS */
+
+    private static final void CPG_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    {
+        CREATE_BASE_SEGMENT(FPA, null, "CPG", 0xFFC00000L, 0x14, true, false, LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFC000000L, "CPG_FRCR", "Frequency Control Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFC000004L, "CPG_STBCR", "Standby Control Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFC000008L, "CPG_WCNT", "Watch Timer Counter", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFC00000CL, "CPG_WCSR", "Watch Timer Status Register", LOG);
+        CREATE_BITWISE_CONST(FPA, 0xFFC000010L, "CPG_STBCR2", "Standby Control Register 2", LOG);
     }
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
