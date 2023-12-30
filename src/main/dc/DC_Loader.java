@@ -62,6 +62,11 @@ public class DC_Loader
     private static final LanguageID CPU_ID = new LanguageID("SUPERH4:LE:32:default");
     private static final CompilerSpecID CPU_SPEC_ID = new CompilerSpecID("default");
 
+    private static final ArrayList<Option> SEGMENT_OPTIONS = new ArrayList<Option>();
+    private static Program PROGRAM_BASE;
+    private static TaskMonitor TASK_MONITOR;
+    private static BinaryReader READER;
+    
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
     public static String GET_BASE_NAME()
@@ -149,22 +154,49 @@ public class DC_Loader
     public Collection<LoadSpec> LOAD_SUPPORTED_SPECS(ByteProvider BYTE_PROVIDER, BinaryReader READER, long READER_LEN) throws IOException
     {
         List<LoadSpec> LOAD_SPECS = new ArrayList<>();
+        LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
 
         // ASSUMES THE BITWISE LENGTH OF READING FROM 16 BIT AND 32 BIT REGISTERS
         // RELATIVE TO A 2KB FLAG
 
         int[] READER_SIZE = {16 * 2048, 32 * 2048};
 
-        READER_LEN += READER.length();
+        READER_LEN = READER.length();
 
         // PROVIDED AN ARBITARY VALUE TO REPRESENT THE READER SIZE
         // ASSUME THAT THE SIZE MATCHES, LOAD THE SPECIFIED SPECS FROM THE BINARY
 
         for (int SIZES : READER_SIZE)
         {
-            LOAD_SPECS.add(new LoadSpec(null, READER_LEN, null, false));
+            LOAD_SPECS.add(new LoadSpec(null, READER_LEN, CPU_SPEC_PAIR, true));
         }
 
         return LOAD_SPECS;
+    }
+
+    /* LOAD THE SUPPORTED SEGMENTS BASED ON A COUROUTINE CHECK FROM THE API */
+    /* SUCH THAT IT IS ABLE TO RECONGISE THE STREAM OF MEMORY FROM THE ROM */
+    
+    private static final void LOAD_SEGMENTS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC) throws IOException
+    {
+        MessageLog LOG = new MessageLog();
+        FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM_BASE);
+
+        CREATE_SEGMENTS(FPA, LOG);
+    }
+
+    public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) throws IOException
+    {
+        /* CONSTRUCT A NEW INSTANCE OF THE GDI READER TO BE ABLE */
+        /* TO ACCESS METHODS FROM THAT OTHER CLASS  */
+
+        DC_GDRom GDI = new DC_GDRom();
+
+        /* THIS METHOD WILL ACCESS ALL OF THE PRE-REQUISITIES IN THE GDROM FILE */
+        /* WHILE THE INTENTION WAS TO MAKE THE CODE A LOAD MORE ORGANISED, WHAT WITH 
+        /* THE LOGIC BEING SPANNED ACROSS MULTIPLE FILES THAT DOESN'T COME */
+        /* EASILY IN "THE WORLD OF JAVA" - AS I HAVE SHOT MYSELF IN THE FOOT */
+
+        GDI.CREATE_BASE_SEGMENT(FPA, null, "BASE", 0xFF000000L, 0x00, false, false, LOG);
     }
 }
