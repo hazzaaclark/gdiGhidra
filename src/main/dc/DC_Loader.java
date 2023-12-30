@@ -66,6 +66,7 @@ public class DC_Loader
     private static Program PROGRAM_BASE;
     private static TaskMonitor TASK_MONITOR;
     private static BinaryReader READER;
+    private static InputStream INPUT_STREAM;
     
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
@@ -177,26 +178,25 @@ public class DC_Loader
     /* LOAD THE SUPPORTED SEGMENTS BASED ON A COUROUTINE CHECK FROM THE API */
     /* SUCH THAT IT IS ABLE TO RECONGISE THE STREAM OF MEMORY FROM THE ROM */
     
-    private static final void LOAD_SEGMENTS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC) throws IOException
+    public static final void LOAD_SEGMENTS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC) throws IOException
     {
         MessageLog LOG = new MessageLog();
         FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM_BASE);
 
         CREATE_SEGMENTS(FPA, LOG);
+
+        INPUT_STREAM = BYTE_PROVIDER.getInputStream(0L);
+
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE, false, false, LOG);
     }
 
     public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) throws IOException
     {
-        /* CONSTRUCT A NEW INSTANCE OF THE GDI READER TO BE ABLE */
-        /* TO ACCESS METHODS FROM THAT OTHER CLASS  */
-
-        DC_GDRom GDI = new DC_GDRom();
-
         /* THIS METHOD WILL ACCESS ALL OF THE PRE-REQUISITIES IN THE GDROM FILE */
         /* WHILE THE INTENTION WAS TO MAKE THE CODE A LOAD MORE ORGANISED, WHAT WITH 
         /* THE LOGIC BEING SPANNED ACROSS MULTIPLE FILES THAT DOESN'T COME */
         /* EASILY IN "THE WORLD OF JAVA" - AS I HAVE SHOT MYSELF IN THE FOOT */
 
-        GDI.CREATE_BASE_SEGMENT(FPA, null, "BASE", 0xFF000000L, 0x00, false, false, LOG);
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", 0xFF000000L, 0x00, false, false, LOG);
     }
 }
