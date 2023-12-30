@@ -130,6 +130,7 @@ public class DC_GDRom
         BSC_SEGMENTS(FPA, LOG);
         UBC_SEGMENTS(FPA, LOG);
         DMA_SEGMENTS(FPA, LOG);
+        CPG_SEGMENTS(FPA, LOG);
     }
 
     /* CONDITION CODE REGISTER SEGMENTS */
@@ -157,7 +158,7 @@ public class DC_GDRom
 
     /* USER BREAK CONTROLLER SEGMENTS */
 
-    private static final void UBC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    public static final void UBC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "UBC", 0xFF200000L, 0x24, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF200000L, "UBC_BARA", "Break Address Register A", LOG);
@@ -196,7 +197,7 @@ public class DC_GDRom
 
     /* DYNAMIC MEMORY ALLOCATION SEGMENTS */
 
-    private static final void DMA_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    public static final void DMA_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "DMA", 0xFFA00000L, 0x44, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFA00000L, "DMA_SAR0", "DMA Source Address Register 0", LOG);
@@ -220,7 +221,7 @@ public class DC_GDRom
 
     /* CONTROL SEGMENTS */
 
-    private static final void CPG_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
+    public static final void CPG_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
         CREATE_BASE_SEGMENT(FPA, null, "CPG", 0xFFC00000L, 0x14, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFC000000L, "CPG_FRCR", "Frequency Control Register", LOG);
