@@ -63,6 +63,8 @@ public class DC_Loader
     public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
     public static final String DC_LOADER = "DREAMCAST GDI LOADER";
     public static final String DC_ID = "HKIT 3030";
+    public static long DC_ENTRY_POINT; 
+    public static long DC_VBR_ENTRY = 0x8C00F4000L;
 
     private static final LanguageID CPU_ID = new LanguageID("SUPERH4:LE:32:default");
     private static final CompilerSpecID CPU_SPEC_ID = new CompilerSpecID("default");
@@ -195,8 +197,34 @@ public class DC_Loader
         GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM32", 0x85000000L, DC_BASE_ADDR, false, false, LOG);
 
         INPUT_STREAM = BYTE_PROVIDER.getInputStream(0L);
-
         GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE, false, false, LOG);
+
+        /* AFTER ALL OF THE ABOVE PRE-REQUISITES HAVE BEEN ESTABLISHED */
+        /* THE ABSTRACT LOADER WILL NOW BEGIN TO INITIALISE THE ENTRY POINT */
+        /* OF THE ROM USING FPA */
+
+        /* DREAMCAST BASE ENTRY POINT */
+
+        FPA.addEntryPoint(FPA.toAddr(DC_ENTRY_POINT));
+        FPA.createFunction(FPA.toAddr(DC_ENTRY_POINT), "DC_ENTRY");
+
+        /* ADDITIONAL VECTOR BASED REGISTER ENTRIES */
+        /* NEEDED FOR THE VECTOR TABLE IN THE HEADER */
+
+        long VBR_EXCEPTION = DC_VBR_ENTRY + 0x100;
+
+        FPA.addEntryPoint(FPA.toAddr(VBR_EXCEPTION));
+        FPA.createFunction(FPA.toAddr(VBR_EXCEPTION), "DC_VBR_EXCEPTION");
+
+        long TLB_EXCEPTION = DC_VBR_ENTRY + 0x400;
+
+        FPA.addEntryPoint(FPA.toAddr(TLB_EXCEPTION));
+        FPA.createFunction(FPA.toAddr(TLB_EXCEPTION), "DC_TLB_EXCEPTION");
+
+        long IRQ_EXCEPTION = DC_VBR_ENTRY + 0x600;
+
+        FPA.addEntryPoint(FPA.toAddr(IRQ_EXCEPTION));
+        FPA.createFunction(FPA.toAddr(IRQ_EXCEPTION), "DC_IRQ_EXCEPTION");
     }
 
     public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) throws IOException
@@ -226,7 +254,8 @@ public class DC_Loader
 
         List<Option> DEFAULT_LIST = GET_DEFAULT_OPTIONS(BYTE_PROVIDER, LOAD_SPEC, DOMAIN);
 
-        SEGMENT_OPTIONS.add(new Option(DC_ID, null));
-        return SEGMENT_OPTIONS;
+        SEGMENT_OPTIONS.add(new Option(DC_ID, DC_BASE_ADDR));
+        SEGMENT_OPTIONS.add(new Option(Long.toString(DC_VBR_ENTRY), 16));
+        return DEFAULT_LIST;
     }
 }
