@@ -1,6 +1,6 @@
-/* Copyright (C) Harry Clark */
+/* COPYRIGHT (C) HARRY CLARK 2024 */
 
-/* SEGA Dreamcast GDI Tool for GHIDRA */
+/* SEGA DREAMCAST GDI TOOL FOR GHIDRA */
 
 /* THIS FILE PERTAINS TO THE FUNCTIONALITY OF LOADING THE INNATE */
 /* CONTENTS OF THE GDI ROM RESPECTIVELY */
@@ -16,8 +16,13 @@ package gdi;
 
 /* NESTED INCLUDES */
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.lang3.ObjectUtils.Null;
 
 /* GHIDRA INCLUDES */
 
@@ -42,7 +47,7 @@ import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 
-public class DC_Loader
+public class DC_Loader 
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
@@ -184,6 +189,10 @@ public class DC_Loader
         FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM_BASE);
 
         CREATE_SEGMENTS(FPA, LOG);
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "ROM", 0xA000000L, DC_BASE_ADDR, false, false, LOG);
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "FLASH_ROM", 0xA02000000L, DC_BASE_ADDR, true, false, LOG);
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM64", 0x84000000L, DC_BASE_ADDR, false, false, LOG);
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM32", 0x85000000L, DC_BASE_ADDR, false, false, LOG);
 
         INPUT_STREAM = BYTE_PROVIDER.getInputStream(0L);
 
@@ -209,10 +218,13 @@ public class DC_Loader
     /* IN THE CASE OF GHIDRA, THIS WILL PROMPT THE USER WILL APPLYING THE NECESSARY CONFIGURATIONS TO LOAD */
     /* THE CORRESPONDING TYPES */
 
-    private static ArrayList<Option> GET_DEFAULT_OPTIONS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC, DomainObject DOMAIN)
-    {
-        /* A BASE OBJECT FOR NOW */
-        /* WHEREBY WE APPEND AN OPTION TO THE LIST BASED ON PARAMS */
+    public static List<Option> GET_DEFAULT_OPTIONS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC, DomainObject DOMAIN)
+    {  
+        /* ACCESS THE DEFAULT OPTIONS USING THE SUPER APPEND METHOD */ 
+        /* IN THIS CONTEXT, THIS ALLOWS THE PROGRAM TO INHERIT THE METHOS FROM */
+        /* THIS FUNCTION TO USE ELSEWHERE */
+
+        List<Option> DEFAULT_LIST = GET_DEFAULT_OPTIONS(BYTE_PROVIDER, LOAD_SPEC, DOMAIN);
 
         SEGMENT_OPTIONS.add(new Option(DC_ID, null));
         return SEGMENT_OPTIONS;
