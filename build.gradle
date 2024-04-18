@@ -37,8 +37,14 @@ task cleanDreamcastExtension(type: Delete) {
 }
 
 task buildDreamcastExtension(type: Zip) {
-    from('src')
+    from('src') {
+        into 'Ghidra'
+    }
+    include '**/*.java'
+    include '**/*.class'
+    include '**/*.properties'
     archiveFileName = "${archivesBaseName}-${version}-Ghidra_${ghidra_version}".replace(' ', '_') + ".zip"
+    destinationDirectory = DISTRIBUTION_DIR 
     dependsOn compileDreamcastExtension
 }
 
