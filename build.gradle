@@ -1,40 +1,46 @@
-def INSTALL_DIR
-def PATH_IN_ZIP 		/* REPLACE WITH THE NAME OF THE PROJECT FOLDER (e.g gdiGhidra) - THIS WILL USE ALL RESPECTIVE JAR FILES */
+import org.apache.tools.ant.filters.ReplaceTokens
 
-if (System.getenv().containsKey("GHIDRA_INSTALL_DIR"))
-{
-    INSTALL_DIR = System.getenv("GHIDRA_INSTALL_DIR");
-}
-else if (project.hasProperty("GHIDRA_INSTALL_DIR")) 
-{
-	INSTALL_DIR = project.getProperty("GHIDRA_INSTALL_DIR")
-}
+//----------------------START "DO NOT MODIFY" SECTION------------------------------
+def ghidraInstallDir
 
-if (INSTALL_DIR) 
-{
-	apply from: new File(INSTALL_DIR).getCanonicalPath() + "/support/buildExtension.gradle"
+if (System.env.GHIDRA_INSTALL_DIR) {
+    ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
 }
-else
-{
-	throw new GradleException("GHIDRA_INSTALL_DIR is not defined")
+else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+    ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
 }
 
-BUILD_EXT
-{
-	extension 'zip'
-	ver ''
-
-	from (project.jar)
-	{
-		into PATH_IN_ZIP + "/lib"
-	}
-
-	from (project.projectdir)
-	{
-		exclude 'build/**'
-		exclude '*.gradle'
-		exclude 'src/**'
-
-		into PATH_IN_ZIP
-	}
+if (ghidraInstallDir) {
+    apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
 }
+else {
+    throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")
+}
+//----------------------END "DO NOT MODIFY" SECTION-------------------------------
+
+def DISTRIBUTION_DIR = file("distribution")
+def PATH_IN_ZIP = "gdi"
+
+archivesBaseName = "gdiGhidra"
+version = "1.0"
+
+task compileDreamcastExtension(type: JavaExec) {
+    main = "gdi.DC_Base"
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ['-Xmx2048M']
+}
+
+task cleanDreamcastExtension(type: Delete) {
+    delete fileTree('build') {
+        include '**/*.class'
+    }
+}
+
+task buildDreamcastExtension(type: Zip) {
+    from('src')
+    archiveFileName = "${archivesBaseName}-${version}-Ghidra_${ghidra_version}".replace(' ', '_') + ".zip"
+    dependsOn compileDreamcastExtension
+}
+
+clean.dependsOn(cleanDreamcastExtension)
+build.dependsOn(compileDreamcastExtension, buildDreamcastExtension)
