@@ -22,11 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.ObjectUtils.Null;
-
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.Option;
+import ghidra.framework.options.Options;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
@@ -47,7 +46,7 @@ import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 
-public class DC_Loader 
+public class DC_Loader
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
@@ -63,8 +62,13 @@ public class DC_Loader
     public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
     public static final String DC_LOADER = "DREAMCAST GDI LOADER";
     public static final String DC_ID = "HKIT 3030";
+
     public static long DC_ENTRY_POINT; 
     public static long DC_VBR_ENTRY = 0x8C00F4000L;
+    public static long SIZE;
+    public static final long VBR_EXCEPTION = DC_VBR_ENTRY + 0x100;
+    public static final long TLB_EXCEPTION = DC_VBR_ENTRY + 0x400;
+    public static final long IRQ_EXCEPTION = DC_VBR_ENTRY + 0x600;
 
     private static final LanguageID CPU_ID = new LanguageID("SUPERH4:LE:32:default");
     private static final CompilerSpecID CPU_SPEC_ID = new CompilerSpecID("default");
@@ -106,11 +110,9 @@ public class DC_Loader
         List<LoadSpec> NEW_SPECS = new ArrayList<>();
         BINARY = new BinaryReader(BYTE, true);
 
-        CONSTRUCT_ROM(BINARY); // USE GDI CONSTRUCTOR TO INSTANTIATE A NEW INSTANCE ACCORDING TO THE BINARY READER
-
         LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
 
-        NEW_SPECS.add(new LoadSpec(null, 0, CPU_SPEC_PAIR, false));
+        NEW_SPECS.add(new LoadSpec(GDI, DC_BASE, CPU_SPEC_PAIR, true));
         return NEW_SPECS;
 
     }
@@ -211,17 +213,11 @@ public class DC_Loader
         /* ADDITIONAL VECTOR BASED REGISTER ENTRIES */
         /* NEEDED FOR THE VECTOR TABLE IN THE HEADER */
 
-        long VBR_EXCEPTION = DC_VBR_ENTRY + 0x100;
-
         FPA.addEntryPoint(FPA.toAddr(VBR_EXCEPTION));
         FPA.createFunction(FPA.toAddr(VBR_EXCEPTION), "DC_VBR_EXCEPTION");
 
-        long TLB_EXCEPTION = DC_VBR_ENTRY + 0x400;
-
         FPA.addEntryPoint(FPA.toAddr(TLB_EXCEPTION));
         FPA.createFunction(FPA.toAddr(TLB_EXCEPTION), "DC_TLB_EXCEPTION");
-
-        long IRQ_EXCEPTION = DC_VBR_ENTRY + 0x600;
 
         FPA.addEntryPoint(FPA.toAddr(IRQ_EXCEPTION));
         FPA.createFunction(FPA.toAddr(IRQ_EXCEPTION), "DC_IRQ_EXCEPTION");
