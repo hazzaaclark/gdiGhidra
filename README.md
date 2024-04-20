@@ -16,7 +16,7 @@ Whereby that Binary has been converted to ASM of the decompiler's reccomendation
 your Windows Environment Variables.
 
 - Run ``./gradlew.bat``
-- The final output will be in a seperate folder called ``/res``
+- The final output will be in a seperate folder called ``/dist``
 
 - Copy the zip file to `/GHIDRA_INSTALL_DIR/Extensions/Ghidra`
 - Start Ghidra and use the "Install Extensions" dialog to finish the installation. (File -> Install Extensions...).
