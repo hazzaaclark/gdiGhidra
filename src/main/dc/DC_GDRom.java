@@ -1,6 +1,6 @@
-/* Copyright (C) Harry Clark */
+/* COPYRIGHT (C) HARRY CLARK 2024 */
 
-/* SEGA Dreamcast GDI Tool for GHIDRA */
+/* SEGA DREAMCAST GDI TOOL FOR GHIDRA */
 
 /* THIS FILE PERTAINS TO THE FUNCTIONALITY OF LOADING THE INNATE */
 /* CONTENTS OF THE GDI ROM RESPECTIVELY */
@@ -17,11 +17,14 @@ import java.io.InputStream;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.*;
+import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.symbol.SourceType;
+import ghidra.sleigh.grammar.SleighParser_DisplayParser.printpiece_return;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.app.util.importer.MessageLog;
+import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 
-public class DC_GDRom 
+public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 {
     public static final int HEADER_SIZE = 0x800;
     public static final long PC_INIT = 0x10;
@@ -77,13 +80,6 @@ public class DC_GDRom
     public static long SP_INIT_CONSTRUCT = 0;
     public static long SP_OFFSET_CONSTRUCT = 0;
 
-    /*  CONSTRUCTOR TO REFER BACK TO INSIDE OF THE MASTER LOADER'S FUNCTION CALLS */
-
-    public DC_GDRom() throws IOException
-    {
-        PARSE_DATA();
-    }
-
     /* PARSE THE DATA RELATIVE TO THE HITACHI S4'S FUNCTIONALITY */
     /* THIS TAKES INTO ACCOUNT THE 32 BITWISE LENGTH OF THE CPU */
     /* AND THEIR RESPECTIVE REGISTERS AND THEIR INNATE FUNCTIONS */
@@ -128,6 +124,12 @@ public class DC_GDRom
         UBC_SEGMENTS(FPA, LOG);
         DMA_SEGMENTS(FPA, LOG);
         CPG_SEGMENTS(FPA, LOG);
+        RTC_SEGMENTS(FPA, LOG);
+        INTC_SEGMENTS(FPA, LOG);
+        TMU_SEGMENTS(FPA, LOG);
+        SCI_SEGMENTS(FPA, LOG);
+        SCIF_SEGMENTS(FPA, LOG);
+        HUDI_SEGMENTS(FPA, LOG);
     }
 
     /* CONDITION CODE REGISTER SEGMENTS */
@@ -232,94 +234,93 @@ public class DC_GDRom
 
     public static void RTC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-	CREATE_BASE_SEGMENT(FPA, null, "RTC", 0xFFC80000L, 0x40, true, false, LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80000L, "RTC_R64CNT", "64 Hz counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80004L, "RTC_RSECCNT", "Second counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80008L, "RTC_RMINCNT", "Minute counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC8000CL, "RTC_RHRCNT", "Hour counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80010L, "RTC_RWKCNT", "Day-of-week counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80014L, "RTC_RDAYCNT", "Day counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80018L, "RTC_RMONCNT", "Month counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC8001CL, "RTC_RYRCNT", "Year counter", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80020L, "RTC_RSECAR", "Second alarm register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80024L, "RTC_RMINAR", "Minute alarm register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80028L, "RTC_RHRAR", "Hour alarm register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC8002CL, "RTC_RWKAR", "Day-of-week alarm register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80030L, "RTC_RDAYAR", "Day alarm register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80034L, "RTC_RMONAR", "Month alarm register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFC80038L, "RTC_RCR1", "RTC control register 1", LOG);	
-	CREATE_BITWISE_CONST(FPA, 0xFFC8003CL, "RTC_RCR2", "RTC control register 2", LOG);
-    }
+		CREATE_BASE_SEGMENT(FPA, null, "RTC", 0xFFC80000L, 0x40, true, false, LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80000L, "RTC_R64CNT", "64 Hz counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80004L, "RTC_RSECCNT", "Second counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80008L, "RTC_RMINCNT", "Minute counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC8000CL, "RTC_RHRCNT", "Hour counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80010L, "RTC_RWKCNT", "Day-of-week counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80014L, "RTC_RDAYCNT", "Day counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80018L, "RTC_RMONCNT", "Month counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC8001CL, "RTC_RYRCNT", "Year counter", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80020L, "RTC_RSECAR", "Second alarm register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80024L, "RTC_RMINAR", "Minute alarm register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80028L, "RTC_RHRAR", "Hour alarm register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC8002CL, "RTC_RWKAR", "Day-of-week alarm register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80030L, "RTC_RDAYAR", "Day alarm register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80034L, "RTC_RMONAR", "Month alarm register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC80038L, "RTC_RCR1", "RTC control register 1", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFC8003CL, "RTC_RCR2", "RTC control register 2", LOG);
+	}
 
     /* INTERRUPT CONDITION SEGMENTS */
 	
-    public static void INTC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
+	public static void INTC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-	CREATE_BASE_SEGMENT(FPA, null, "INTC", 0xFFD00000L, 0x10, true, false, LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD00000L, "INTC_ICR", "Interrupt control register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD00004L, "INTC_IPRA", "Interrupt priority register A", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD00008L, "INTC_IPRB", "Interrupt priority register B", LOG);	
-	CREATE_BITWISE_CONST(FPA, 0xFFD0000CL, "INTC_IPRC", "Interrupt priority register C", LOG);
-    }
+		CREATE_BASE_SEGMENT(FPA, null, "INTC", 0xFFD00000L, 0x10, true, false, LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD00000L, "INTC_ICR", "Interrupt control register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD00004L, "INTC_IPRA", "Interrupt priority register A", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD00008L, "INTC_IPRB", "Interrupt priority register B", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD0000CL, "INTC_IPRC", "Interrupt priority register C", LOG);
+	}
 
     /* TIMER MANAGEMENT UNIT SEGMENTS */
 
-    public static void TMU_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
+	public static void TMU_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-	CREATE_BASE_SEGMENT(FPA, null, "TMU", 0xFFD80000L, 0x30, true, false, LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80000L, "TMU_TOCR", "Timer output control register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80004L, "TMU_TSTR", "Timer start register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80008L, "TMU_TCOR0", "Timer constant register 0", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD8000CL, "TMU_TCNT0", "Timer counter 0", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80010L, "TMU_TCR0", "Timer control register 0", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80014L, "TMU_TCOR1", "Timer constant register 1", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80018L, "TMU_TCNT1", "Timer counter 1", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD8001CL, "TMU_TCR1", "Timer control register 1", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80020L, "TMU_TCOR2", "Timer constant register 2", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80024L, "TMU_TCNT2", "Timer counter 2", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD80028L, "TMU_TCR2", "Timer control register 2", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFD8002CL, "TMU_TCPR2", "Input capture register", LOG);
-    }
+		CREATE_BASE_SEGMENT(FPA, null, "TMU", 0xFFD80000L, 0x30, true, false, LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80000L, "TMU_TOCR", "Timer output control register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80004L, "TMU_TSTR", "Timer start register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80008L, "TMU_TCOR0", "Timer constant register 0", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD8000CL, "TMU_TCNT0", "Timer counter 0", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80010L, "TMU_TCR0", "Timer control register 0", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80014L, "TMU_TCOR1", "Timer constant register 1", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80018L, "TMU_TCNT1", "Timer counter 1", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD8001CL, "TMU_TCR1", "Timer control register 1", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80020L, "TMU_TCOR2", "Timer constant register 2", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80024L, "TMU_TCNT2", "Timer counter 2", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD80028L, "TMU_TCR2", "Timer control register 2", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFD8002CL, "TMU_TCPR2", "Input capture register", LOG);
+	}
 
     /* SERIAL MODE CONTROL SEGMENTS */
 	
-    public static void SCI_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
+	public static void SCI_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
+		CREATE_BASE_SEGMENT(FPA, null, "SCI", 0xFFE00000L, 0x20, true, false, LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE00000L, "SCI_SCSMR1", "Serial mode register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE00004L, "SCI_SCBRR1", "Bit rate register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE00008L, "SCI_SCSCR1", "Serial control register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE0000CL, "SCI_SCTDR1", "Transmit data register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE00010L, "SCI_SCSSR1", "Serial status register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE00014L, "SCI_SCRDR1", "Receive data register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE00018L, "SCI_SCSCMR1", "Smart card mode register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE0001CL, "SCI_SCSPTR1", "Serial port register", LOG);
+	}
 	
-	CREATE_BASE_SEGMENT(FPA, null, "SCI", 0xFFE00000L, 0x20, true, false, LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE00000L, "SCI_SCSMR1", "Serial mode register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE00004L, "SCI_SCBRR1", "Bit rate register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE00008L, "SCI_SCSCR1", "Serial control register", LOG);	
-	CREATE_BITWISE_CONST(FPA, 0xFFE0000CL, "SCI_SCTDR1", "Transmit data register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE00010L, "SCI_SCSSR1", "Serial status register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE00014L, "SCI_SCRDR1", "Receive data register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE00018L, "SCI_SCSCMR1", "Smart card mode register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE0001CL, "SCI_SCSPTR1", "Serial port register", LOG);
-    }
-	
-    public static void SCIF_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
+	public static void SCIF_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-	CREATE_BASE_SEGMENT(FPA, null, "SCIF", 0xFFE80000L, 0x28, true, false, LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80000L, "SCIF_SCSMR2", "Serial mode register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80004L, "SCIF_SCBRR2", "Bit rate register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80008L, "SCIF_SCSCR2", "Serial control register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE8000CL, "SCIF_SCFTDR2", "Transmit FIFO data register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80010L, "SCIF_SCFSR2", "Serial status register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80014L, "SCIF_SCFRDR2", "Receive FIFO data register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80018L, "SCIF_SCFCR2", "FIFO control register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE8001CL, "SCIF_SCFDR2", "FIFO data count register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80020L, "SCIF_SCSPTR2", "Serial port register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFE80024L, "SCIF_SCLSR2", "Line status register", LOG);
-    }
+		CREATE_BASE_SEGMENT(FPA, null, "SCIF", 0xFFE80000L, 0x28, true, false, LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80000L, "SCIF_SCSMR2", "Serial mode register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80004L, "SCIF_SCBRR2", "Bit rate register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80008L, "SCIF_SCSCR2", "Serial control register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE8000CL, "SCIF_SCFTDR2", "Transmit FIFO data register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80010L, "SCIF_SCFSR2", "Serial status register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80014L, "SCIF_SCFRDR2", "Receive FIFO data register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80018L, "SCIF_SCFCR2", "FIFO control register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE8001CL, "SCIF_SCFDR2", "FIFO data count register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80020L, "SCIF_SCSPTR2", "Serial port register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFE80024L, "SCIF_SCLSR2", "Line status register", LOG);
+	}
 
     /* HITACHI DATA/INSTRUCTION SEGMENTS */
 	
-    public static void HUDI_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
+	public static void HUDI_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-	CREATE_BASE_SEGMENT(FPA, null, "HUDI", 0xFFF00000L, 0x0C, true, false, LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFF00000L, "HUDI_SDIR", "Instruction register", LOG);
-	CREATE_BITWISE_CONST(FPA, 0xFFF00008L, "HUDI_SDDR", "Data register", LOG);
-    }
+		CREATE_BASE_SEGMENT(FPA, null, "HUDI", 0xFFF00000L, 0x0C, true, false, LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFF00000L, "HUDI_SDIR", "Instruction register", LOG);
+		CREATE_BITWISE_CONST(FPA, 0xFFF00008L, "HUDI_SDDR", "Data register", LOG);
+	}
 
     /* CREATE AN ADDRESSIBLEE CONSTANT SUCH THAT IT WILL PARSE THE CONTENTS OF THE PROVIDED ADDRESS */
     /* THE FOLLOWING SEGMENT OF CODE ACTS AS A GLOBAL VARIABLE FOR ALL ADDRESS TYPE OF ANY GIVEN LENGTH */
@@ -352,6 +353,7 @@ public class DC_GDRom
         try
         {
             FPA.getCurrentProgram().getSymbolTable().createLabel(ADDRESS_ARG, ADDRESS_TYPE, SourceType.IMPORTED);
+            FPA.getCurrentProgram().getListing().setComment(ADDRESS_ARG, CodeUnit.REPEATABLE_COMMENT, ADDRESS_NAME);
         }
 
         catch (InvalidInputException INVALID_EXEC)
