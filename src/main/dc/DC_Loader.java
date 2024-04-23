@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import aQute.lib.io.IO;
+
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.Option;
@@ -45,8 +47,9 @@ import ghidra.program.model.symbol.SourceType;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
+import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 
-public class DC_Loader
+public abstract class DC_Loader extends AbstractLibrarySupportLoader
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
@@ -86,21 +89,14 @@ public class DC_Loader
         return DC_LOADER;
     }
 
-    /* LOCALLY DECLARED CONSTRUCTOR FOR READING THE CONTENTS OF THE HEADER */
-    
-    public static void CONSTRUCT_ROM(BinaryReader READER)
-    {
-        READ_HEADER(READER, GDI);
-    }
 
     /* THIS FUNCTIONS PERTAINS TO THE WAY IN WHICH THE GHIDRA BINARY READER */
     /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
     /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
 
-    public Collection<LoadSpec> LOAD_SPECIFICATION(ByteProvider BYTE)
+    @Override
+    public Collection<LoadSpec> findSupportedLoadSpecs(ByteProvider BYTE) throws IOException
     {
-        BinaryReader BINARY = new BinaryReader(BYTE, true);
-
         /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
         /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
         /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
@@ -108,7 +104,6 @@ public class DC_Loader
         /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
 
         List<LoadSpec> NEW_SPECS = new ArrayList<>();
-        BINARY = new BinaryReader(BYTE, true);
 
         LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
 
@@ -116,47 +111,6 @@ public class DC_Loader
         return NEW_SPECS;
 
     }
-
-    /* READS THE CONTENTS OF THE HEADER */
-    /* THIS IS ASSUMING THE ARBITARY CASES ARE IN PLACE SUCH AS TEXT AND DATA */
-
-    /* THIS FUNCTION WILL LOOK OVER THE OFFSETS, MEMORY ADDRESSES, AND ARBITARY SIZE OF */
-    /* EACH RESPECTIVE SECTION */
-
-    private static void READ_HEADER(BinaryReader READER, DC_GDRom GDI) 
-    {
-        MessageLog LOG = new MessageLog();
-
-        try 
-        {            
-            READER.setPointerIndex(0);
-
-            for (int i = 0; i < 7; i++)
-            {
-               GDI.TEXT_OFFSET[i] = READER.readNextUnsignedInt();
-               GDI.TEXT_MEM_ADDR[i] = READER.readNextUnsignedInt();
-               GDI.TEXT_SIZE[i] = READER.readNextUnsignedInt();
-            }
-
-            for (int j = 0; j < 11; j++)
-            {
-                GDI.DATA_OFFSET[j] = READER.readNextUnsignedInt();
-                GDI.DATA_MEM_ADDR[j] = READER.readNextUnsignedInt();
-                GDI.DATA_SIZE[j] = READER.readNextUnsignedInt();
-            }
-
-            GDI.BSS_MEM_ADDR = READER.readNextUnsignedInt();
-            GDI.BSS_SIZE = READER.readNextUnsignedInt();
-            GDI.BSS_ENTRY = READER.readNextUnsignedInt();
-            GDI.HAS_BSS = true;
-        } 
-        
-        catch (Exception EXEC)  
-        {
-            LOG.appendException(EXEC);
-        }
-    }
-    
     
     /* RUNS A COROUTINE CHECK TO DETERMINE THE CORRESPONDING LOAD SPECIFICATIONS */
     /* FROM THE DREAMCAST'S LANGUAGE COMPILER */
@@ -186,10 +140,10 @@ public class DC_Loader
 
     /* LOAD THE SUPPORTED SEGMENTS BASED ON A COUROUTINE CHECK FROM THE API */
     /* SUCH THAT IT IS ABLE TO RECONGISE THE STREAM OF MEMORY FROM THE ROM */
-    
-    public static final void LOAD_SEGMENTS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC) throws IOException
+
+    @Override
+    protected void load(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG) throws CancelledException, IOException
     {
-        MessageLog LOG = new MessageLog();
         FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM_BASE);
 
         CREATE_SEGMENTS(FPA, LOG);
@@ -198,7 +152,7 @@ public class DC_Loader
         GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM64", 0x84000000L, DC_BASE_ADDR, false, false, LOG);
         GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM32", 0x85000000L, DC_BASE_ADDR, false, false, LOG);
 
-        INPUT_STREAM = BYTE_PROVIDER.getInputStream(0L);
+        INPUT_STREAM = PROVIDER.getInputStream(0L);
         GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE, false, false, LOG);
 
         /* AFTER ALL OF THE ABOVE PRE-REQUISITES HAVE BEEN ESTABLISHED */
