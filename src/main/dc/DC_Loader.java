@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import aQute.lib.io.IO;
-
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.Option;
@@ -60,11 +58,12 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
 
     /* DE FACTO STANDARD HEX VALUES FOR CD-ROMS  */
 
-    public static long DC_BASE = 0x20000000;
+    public static long DC_BASE_ADDRESS = 0x20000000;
     public static long DC_INIT = 0x80000000;
-    public static final long DC_BASE_ADDR = DC_BASE + 0x1000;
+    public static final long DC_BASE_ADDR = DC_BASE_ADDRESS + 0x1000;
     public static final String DC_LOADER = "DREAMCAST GDI LOADER";
     public static final String DC_ID = "HKIT 3030";
+    private static final String OPTION_NAME = "DREAMCAST OPTIONS: ";
 
     public static long DC_ENTRY_POINT; 
     public static long DC_VBR_ENTRY = 0x8C00F4000L;
@@ -107,7 +106,7 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
 
         LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
 
-        NEW_SPECS.add(new LoadSpec(GDI, DC_BASE, CPU_SPEC_PAIR, true));
+        NEW_SPECS.add(new LoadSpec(GDI, DC_BASE_ADDRESS, CPU_SPEC_PAIR, true));
         return NEW_SPECS;
 
     }
@@ -153,7 +152,7 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
         GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM32", 0x85000000L, DC_BASE_ADDR, false, false, LOG);
 
         INPUT_STREAM = PROVIDER.getInputStream(0L);
-        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE, false, false, LOG);
+        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE_ADDRESS, false, false, LOG);
 
         /* AFTER ALL OF THE ABOVE PRE-REQUISITES HAVE BEEN ESTABLISHED */
         /* THE ABSTRACT LOADER WILL NOW BEGIN TO INITIALISE THE ENTRY POINT */
@@ -196,16 +195,17 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
     /* IN THE CASE OF GHIDRA, THIS WILL PROMPT THE USER WILL APPLYING THE NECESSARY CONFIGURATIONS TO LOAD */
     /* THE CORRESPONDING TYPES */
 
-    public static List<Option> GET_DEFAULT_OPTIONS(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC, DomainObject DOMAIN)
+    @Override
+    public List<Option> getDefaultOptions(ByteProvider BYTE_PROVIDER, LoadSpec LOAD_SPEC, DomainObject DOMAIN, boolean IS_LOADED)
     {  
         /* ACCESS THE DEFAULT OPTIONS USING THE SUPER APPEND METHOD */ 
         /* IN THIS CONTEXT, THIS ALLOWS THE PROGRAM TO INHERIT THE METHOS FROM */
         /* THIS FUNCTION TO USE ELSEWHERE */
 
-        List<Option> DEFAULT_LIST = GET_DEFAULT_OPTIONS(BYTE_PROVIDER, LOAD_SPEC, DOMAIN);
+        List<Option> DEFAULT_LIST = new ArrayList<>();
 
-        SEGMENT_OPTIONS.add(new Option(DC_ID, DC_BASE_ADDR));
-        SEGMENT_OPTIONS.add(new Option(Long.toString(DC_VBR_ENTRY), 16));
+        DEFAULT_LIST.add(new DC_Base(OPTION_NAME, DC_VBR_ENTRY, DC_Base.class, COMMAND_LINE_ARG_PREFIX + ""));
+
         return DEFAULT_LIST;
     }
 }
