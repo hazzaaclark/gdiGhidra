@@ -60,10 +60,10 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
 
     public static long DC_BASE_ADDRESS = 0x20000000;
     public static long DC_INIT = 0x80000000;
-    public static final long DC_BASE_ADDR = DC_BASE_ADDRESS + 0x1000;
+    public static long DC_BASE_ADDR = DC_BASE_ADDRESS + 0x1000;
     public static final String DC_LOADER = "DREAMCAST GDI LOADER";
     public static final String DC_ID = "HKIT 3030";
-    private static final String OPTION_NAME = "DREAMCAST OPTIONS: ";
+    private static final String DC_OPTION_NAME = "DREAMCAST OPTIONS: ";
 
     public static long DC_ENTRY_POINT; 
     public static long DC_VBR_ENTRY = 0x8C00F4000L;
@@ -204,8 +204,30 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
 
         List<Option> DEFAULT_LIST = new ArrayList<>();
 
-        DEFAULT_LIST.add(new DC_Base(OPTION_NAME, DC_VBR_ENTRY, DC_Base.class, COMMAND_LINE_ARG_PREFIX + ""));
+        DEFAULT_LIST.add(new DC_Base(DC_OPTION_NAME, DC_VBR_ENTRY, DC_Base.class, COMMAND_LINE_ARG_PREFIX + ""));
 
         return DEFAULT_LIST;
     }
-}
+
+    /* VALIDATE THE PROVIDED OPTIONS IN RELATION TO THE CORRESPONDENCE OF THE ROM */
+    /* DECODE THE LENGTH OF THE RAM BASE BY SENDING A STRING CAST RELATED TO THE DESIGNATED OPTION */
+
+    @Override
+    public String validateOptions(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM)
+    {
+        String OPTION_NAME;
+
+        for(Option OPTION : OPTIONS)
+        {
+            OPTION_NAME = OPTION.getName();
+
+            if(OPTION_NAME.equals(DC_OPTION_NAME))
+            {
+                DC_BASE_ADDR = Long.decode((String)OPTION.getValue());
+                break;
+            }
+        }
+
+        return null;
+    }
+} 
