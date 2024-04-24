@@ -18,8 +18,10 @@ import ghidra.app.util.bin.BinaryReader;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.*;
 import ghidra.program.model.listing.CodeUnit;
+import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.sleigh.grammar.SleighParser_DisplayParser.printpiece_return;
+import ghidra.sleigh.grammar.SleighParser_SemanticParser.statement_return;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
@@ -352,13 +354,34 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
         try
         {
-            FPA.getCurrentProgram().getSymbolTable().createLabel(ADDRESS_ARG, ADDRESS_TYPE, SourceType.IMPORTED);
-            FPA.getCurrentProgram().getListing().setComment(ADDRESS_ARG, CodeUnit.REPEATABLE_COMMENT, ADDRESS_NAME);
+            FPA.getCurrentProgram().getSymbolTable().createLabel(ADDRESS_ARG, ADDRESS_NAME, SourceType.IMPORTED);
+            FPA.getCurrentProgram().getListing().setComment(ADDRESS_ARG, CodeUnit.REPEATABLE_COMMENT, ADDRESS_TYPE);
         }
 
         catch (InvalidInputException INVALID_EXEC)
         {
             LOG.appendException(INVALID_EXEC);
         }
+    }
+
+    /* SET A DESIGNATED MEMORY BLOCK SUCH THAT THE CPU IS ABLE TO COMMUNICATE */
+    /* WITH THE INPUT PROVIDED THROUGH THE STREAM */
+
+    private static void CREATE_SEGMENT(FlatProgramAPI FPA, InputStream IO_STREAM, String NAME, long ADDRESS, long SIZE, boolean WRITE_MODE, boolean EXECUTE, MessageLog LOG, MemoryBlock MEMORY)
+    {
+        /* INSTANTIATE A MEMORY BLOCK OBJECT BASED ON THE SIZE OF THE CORRESPONDENCE */
+
+        try
+        {
+            MEMORY = FPA.createMemoryBlock(NAME, FPA.toAddr(ADDRESS), IO_STREAM, SIZE, false);
+            MEMORY.setRead(true);
+            MEMORY.setWrite(WRITE_MODE);
+            MEMORY.setExecute(EXECUTE);
+        }
+
+         catch (Exception E)
+         {
+            LOG.appendException(E);
+         }
     }
 }
