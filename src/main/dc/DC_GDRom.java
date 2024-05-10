@@ -20,8 +20,6 @@ import ghidra.program.model.address.*;
 import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
-import ghidra.sleigh.grammar.SleighParser_DisplayParser.printpiece_return;
-import ghidra.sleigh.grammar.SleighParser_SemanticParser.statement_return;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
@@ -224,7 +222,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
     public static final void CPG_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
-        CREATE_BASE_SEGMENT(FPA, null, "CPG", 0xFFC00000L, 0x14, true, false, LOG);
+        CREATE_SEGMENT(FPA, null, "CPG", 0xFFC00000L, 0x14, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFC000000L, "CPG_FRCR", "Frequency Control Register", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFC000004L, "CPG_STBCR", "Standby Control Register", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFC000008L, "CPG_WCNT", "Watch Timer Counter", LOG);
@@ -236,7 +234,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
     public static void RTC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-		CREATE_BASE_SEGMENT(FPA, null, "RTC", 0xFFC80000L, 0x40, true, false, LOG);
+		CREATE_SEGMENT(FPA, null, "RTC", 0xFFC80000L, 0x40, true, false, LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFC80000L, "RTC_R64CNT", "64 Hz counter", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFC80004L, "RTC_RSECCNT", "Second counter", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFC80008L, "RTC_RMINCNT", "Minute counter", LOG);
@@ -259,7 +257,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 	
 	public static void INTC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-		CREATE_BASE_SEGMENT(FPA, null, "INTC", 0xFFD00000L, 0x10, true, false, LOG);
+		CREATE_SEGMENT(FPA, null, "INTC", 0xFFD00000L, 0x10, true, false, LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFD00000L, "INTC_ICR", "Interrupt control register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFD00004L, "INTC_IPRA", "Interrupt priority register A", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFD00008L, "INTC_IPRB", "Interrupt priority register B", LOG);
@@ -270,7 +268,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
 	public static void TMU_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-		CREATE_BASE_SEGMENT(FPA, null, "TMU", 0xFFD80000L, 0x30, true, false, LOG);
+		CREATE_SEGMENT(FPA, null, "TMU", 0xFFD80000L, 0x30, true, false, LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFD80000L, "TMU_TOCR", "Timer output control register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFD80004L, "TMU_TSTR", "Timer start register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFD80008L, "TMU_TCOR0", "Timer constant register 0", LOG);
@@ -289,7 +287,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 	
 	public static void SCI_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-		CREATE_BASE_SEGMENT(FPA, null, "SCI", 0xFFE00000L, 0x20, true, false, LOG);
+		CREATE_SEGMENT(FPA, null, "SCI", 0xFFE00000L, 0x20, true, false, LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFE00000L, "SCI_SCSMR1", "Serial mode register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFE00004L, "SCI_SCBRR1", "Bit rate register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFE00008L, "SCI_SCSCR1", "Serial control register", LOG);
@@ -302,7 +300,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 	
 	public static void SCIF_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-		CREATE_BASE_SEGMENT(FPA, null, "SCIF", 0xFFE80000L, 0x28, true, false, LOG);
+		CREATE_SEGMENT(FPA, null, "SCIF", 0xFFE80000L, 0x28, true, false, LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFE80000L, "SCIF_SCSMR2", "Serial mode register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFE80004L, "SCIF_SCBRR2", "Bit rate register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFE80008L, "SCIF_SCSCR2", "Serial control register", LOG);
@@ -319,7 +317,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 	
 	public static void HUDI_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
-		CREATE_BASE_SEGMENT(FPA, null, "HUDI", 0xFFF00000L, 0x0C, true, false, LOG);
+		CREATE_SEGMENT(FPA, null, "HUDI", 0xFFF00000L, 0x0C, true, false, LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFF00000L, "HUDI_SDIR", "Instruction register", LOG);
 		CREATE_BITWISE_CONST(FPA, 0xFFF00008L, "HUDI_SDDR", "Data register", LOG);
 	}
@@ -367,8 +365,10 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
     /* SET A DESIGNATED MEMORY BLOCK SUCH THAT THE CPU IS ABLE TO COMMUNICATE */
     /* WITH THE INPUT PROVIDED THROUGH THE STREAM */
 
-    private static void CREATE_SEGMENT(FlatProgramAPI FPA, InputStream IO_STREAM, String NAME, long ADDRESS, long SIZE, boolean WRITE_MODE, boolean EXECUTE, MessageLog LOG, MemoryBlock MEMORY)
+    protected static void CREATE_SEGMENT(FlatProgramAPI FPA, InputStream IO_STREAM, String NAME, long ADDRESS, long SIZE, boolean WRITE_MODE, boolean EXECUTE, MessageLog LOG)
     {
+        MemoryBlock MEMORY;
+
         /* INSTANTIATE A MEMORY BLOCK OBJECT BASED ON THE SIZE OF THE CORRESPONDENCE */
 
         try
