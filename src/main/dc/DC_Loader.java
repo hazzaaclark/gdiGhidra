@@ -186,9 +186,6 @@ public class DC_Loader extends AbstractLibrarySupportLoader
         /* THIS FUNCTION TO USE ELSEWHERE */
 
         List<Option> DEFAULT_LIST = new ArrayList<>();
-
-        DEFAULT_LIST.add(new DC_Base(DC_OPTION_NAME, DC_VBR_ENTRY, DC_Base.class, COMMAND_LINE_ARG_PREFIX + ""));
-
         return DEFAULT_LIST;
     }
 
