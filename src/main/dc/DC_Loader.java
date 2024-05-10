@@ -72,28 +72,28 @@ public class DC_Loader extends DC_GDRom
     /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
     /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
 
-    @Override
-    public Collection<LoadSpec> findSupportedLoadSpecs(ByteProvider BYTE) throws IOException
-    {
-        /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
-        /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
-        /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
-
-        /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
-
-        List<LoadSpec> LOAD_SPECS = new ArrayList<>();
-
-        BinaryReader READER = new BinaryReader(BYTE, true);
-
-        long SIZE = READER.length();
-
-        if(SIZE == 16 * 1024 * 1024 || SIZE == 32 * 1024 * 1024)
+        @Override
+        public Collection<LoadSpec> findSupportedLoadSpecs(ByteProvider BYTE) throws IOException
         {
-            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SuperH4:LE:32:default", "default"), true));
-        }
+            /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
+            /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
+            /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
 
-        return LOAD_SPECS;
-    }
+            /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
+
+            List<LoadSpec> LOAD_SPECS = new ArrayList<>();
+
+            BinaryReader READER = new BinaryReader(BYTE, true);
+        
+            long SIZE = READER.length();
+
+            if(SIZE == 16 * 1024 * 1024 || SIZE == 32 * 1024 * 1024)
+            {
+                LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SuperH4:LE:32:default", "default"), true));
+            }
+
+            return LOAD_SPECS;
+        }
 
     /* LOAD THE SUPPORTED SEGMENTS BASED ON A COUROUTINE CHECK FROM THE API */
     /* SUCH THAT IT IS ABLE TO RECONGISE THE STREAM OF MEMORY FROM THE ROM */
