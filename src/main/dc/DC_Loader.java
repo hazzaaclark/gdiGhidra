@@ -19,13 +19,11 @@ package gdi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 /* GHIDRA INCLUDES */
 
-import ghidra.program.model.address.Address;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -35,8 +33,6 @@ import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.symbol.SourceType;
-import ghidra.util.LittleEndianDataConverter;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
@@ -91,11 +87,6 @@ public class DC_Loader extends DC_GDRom
 
         long SIZE = READER.length();
 
-        if(IS_GDI(BYTE))
-        {
-            SEEK_TYPE = SEEK_SET;
-        }
-
         if(SIZE == 16 * 1024 * 1024 || SIZE == 32 * 1024 * 1024)
         {
             LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SuperH4:LE:32:default", "default"), true));
@@ -118,7 +109,7 @@ public class DC_Loader extends DC_GDRom
         DC_GDRom.CREATE_BASE_SEGMENT(FPA, RAW_STREAM, "RAM", DC_ENTRY_POINT, RAM_SIZE, true, true, LOG);
     }
 
-    public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) throws IOException
+    public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
     {
         DC_GDRom.CCR_SEGMENTS(FPA, LOG);
         DC_GDRom.UBC_SEGMENTS(FPA, LOG);
@@ -168,21 +159,5 @@ public class DC_Loader extends DC_GDRom
         }
 
         return super.validateOptions(PROVIDER, LOAD_SPEC, OPTIONS, PROGRAM);
-    }
-
-    public boolean IS_GDI(ByteProvider PROVIDER) throws IOException
-    {
-        String SIG = "DREAMCAST";
-
-        if(PROVIDER.length() >= SIG.length())
-        {
-            byte[] SIG_ARRAY = PROVIDER.readBytes(0, SIG.length());
-            if(Arrays.equals(SIG_ARRAY, SIG.getBytes()))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 } 
