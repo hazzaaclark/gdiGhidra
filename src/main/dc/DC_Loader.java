@@ -25,30 +25,18 @@ import java.util.List;
 /* GHIDRA INCLUDES */
 
 import ghidra.app.util.Option;
-import ghidra.framework.options.Options;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
-import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
-import ghidra.app.util.opinion.Loader;
 import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
-import ghidra.program.model.address.Address;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
-import ghidra.program.model.lang.LanguageID;
-import ghidra.program.model.lang.CompilerSpecID;
-import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.mem.MemoryBlock;
-import ghidra.program.model.symbol.SourceType;
-import ghidra.util.database.DBCachedObjectStoreFactory.LongDBFieldCodec;
 import ghidra.util.exception.CancelledException;
-import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
-import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 
-public class DC_Loader extends AbstractLibrarySupportLoader
+public class DC_Loader extends DC_GDRom
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
@@ -58,10 +46,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 
     /* DE FACTO STANDARD HEX VALUES FOR CD-ROMS  */
 
-    public static long DC_BASE_ADDRESS = 0x20000000;
     public static long DC_INIT = 0x80000000;
-    public static long DC_BASE_ADDR = DC_BASE_ADDRESS + 0x1000;
-    public static final String DC_LOADER = "DREAMCAST GDI LOADER";
     public static final String DC_ID = "HKIT 3030";
     private static final String DC_OPTION_NAME = "DREAMCAST OPTIONS: ";
 
@@ -74,13 +59,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
     public static final long TLB_EXCEPTION = DC_VBR_ENTRY + 0x400;
     public static final long IRQ_EXCEPTION = DC_VBR_ENTRY + 0x600;
 
-    private static final LanguageID CPU_ID = new LanguageID("SUPERH4:LE:32:default");
-    private static final CompilerSpecID CPU_SPEC_ID = new CompilerSpecID("default");
-
-    private static final ArrayList<Option> SEGMENT_OPTIONS = new ArrayList<Option>();
     private static Program PROGRAM_BASE;
-    private static TaskMonitor TASK_MONITOR;
-    private static BinaryReader READER;
     private static InputStream INPUT_STREAM;
     
     /* RETURN THE NAME OF THE PLUGIN LOADER */
@@ -88,7 +67,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
     @Override
     public String getName()
     {
-        return DC_LOADER;
+        return "Dreamcast GDI Loader";
     }
 
 
@@ -113,7 +92,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 
         if(SIZE == RAM_MB || SIZE == RAM_MB * 2)
         {
-            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID), false));
+            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SUPERH4:LE:32:default", "default"), true));
         }
 
         return LOAD_SPECS;
@@ -130,7 +109,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
         CREATE_SEGMENTS(FPA, LOG);
 
         INPUT_STREAM = PROVIDER.getInputStream(0L);
-        DC_GDRom.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE_ADDRESS, true, true, LOG);
+        DC_GDRom.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_INIT, RAM_MB * 2, true, true, LOG);
 
         /* AFTER ALL OF THE ABOVE PRE-REQUISITES HAVE BEEN ESTABLISHED */
         /* THE ABSTRACT LOADER WILL NOW BEGIN TO INITIALISE THE ENTRY POINT */
@@ -198,7 +177,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 
             if(OPTION_NAME.equals(DC_OPTION_NAME))
             {
-                DC_BASE_ADDR = Long.decode((String)OPTION.getValue());
+                DC_INIT = Long.decode((String)OPTION.getValue());
                 break;
             }
         }
