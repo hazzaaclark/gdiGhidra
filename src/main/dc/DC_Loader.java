@@ -19,11 +19,13 @@ package gdi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 /* GHIDRA INCLUDES */
 
+import ghidra.program.model.address.Address;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -33,6 +35,8 @@ import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.symbol.SourceType;
+import ghidra.util.LittleEndianDataConverter;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
@@ -43,24 +47,21 @@ public class DC_Loader extends DC_GDRom
     public static int SEEK_SET = 0;
     public static int SEEK_CUR = 1;
     public static int SEEK_END = 2;
+    public static int SEEK_TYPE;
 
     /* DE FACTO STANDARD HEX VALUES FOR CD-ROMS  */
 
     public static long DC_INIT = 0x80000000;
+    private static final long RAM_SIZE = 0x02000000L;
     public static final String DC_ID = "HKIT 3030";
     private static final String DC_OPTION_NAME = "DREAMCAST OPTIONS: ";
 
     protected static final long RAM_KB = 1024;
     protected static final long RAM_MB = RAM_KB * RAM_KB;
-    public static long DC_ENTRY_POINT; 
-    public static long DC_VBR_ENTRY = 0x8C00F4000L;
-    public static long SIZE;
-    public static final long VBR_EXCEPTION = DC_VBR_ENTRY + 0x100;
-    public static final long TLB_EXCEPTION = DC_VBR_ENTRY + 0x400;
-    public static final long IRQ_EXCEPTION = DC_VBR_ENTRY + 0x600;
-
-    private static Program PROGRAM_BASE;
-    private static InputStream INPUT_STREAM;
+    public static long DC_ENTRY_POINT = 0x8C000000L;
+    public static final long VBR_EXCEPTION = DC_ENTRY_POINT + 0x100;
+    public static final long TLB_EXCEPTION = DC_ENTRY_POINT + 0x400;
+    public static final long IRQ_EXCEPTION = DC_ENTRY_POINT + 0x600;
     
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
@@ -88,11 +89,16 @@ public class DC_Loader extends DC_GDRom
 
         BinaryReader READER = new BinaryReader(BYTE, true);
 
-        SIZE = READER.length();
+        long SIZE = READER.length();
 
-        if(SIZE == RAM_MB || SIZE == RAM_MB * 2)
+        if(IS_GDI(BYTE))
         {
-            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SUPERH4:LE:32:default", "default"), true));
+            SEEK_TYPE = SEEK_SET;
+        }
+
+        if(SIZE == 16 * 1024 * 1024 || SIZE == 32 * 1024 * 1024)
+        {
+            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SuperH4:LE:32:default", "default"), true));
         }
 
         return LOAD_SPECS;
@@ -104,33 +110,12 @@ public class DC_Loader extends DC_GDRom
     @Override
     protected void load(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG) throws CancelledException, IOException
     {
-        FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM_BASE);
+        FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM);
 
         CREATE_SEGMENTS(FPA, LOG);
 
-        INPUT_STREAM = PROVIDER.getInputStream(0L);
-        DC_GDRom.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_INIT, RAM_MB * 2, true, true, LOG);
-
-        /* AFTER ALL OF THE ABOVE PRE-REQUISITES HAVE BEEN ESTABLISHED */
-        /* THE ABSTRACT LOADER WILL NOW BEGIN TO INITIALISE THE ENTRY POINT */
-        /* OF THE ROM USING FPA */
-
-        /* DREAMCAST BASE ENTRY POINT */
-
-        FPA.addEntryPoint(FPA.toAddr(DC_ENTRY_POINT));
-        FPA.createFunction(FPA.toAddr(DC_ENTRY_POINT), "DC_ENTRY");
-
-        /* ADDITIONAL VECTOR BASED REGISTER ENTRIES */
-        /* NEEDED FOR THE VECTOR TABLE IN THE HEADER */
-
-        FPA.addEntryPoint(FPA.toAddr(VBR_EXCEPTION));
-        FPA.createFunction(FPA.toAddr(VBR_EXCEPTION), "DC_VBR_EXCEPTION");
-
-        FPA.addEntryPoint(FPA.toAddr(TLB_EXCEPTION));
-        FPA.createFunction(FPA.toAddr(TLB_EXCEPTION), "DC_TLB_EXCEPTION");
-
-        FPA.addEntryPoint(FPA.toAddr(IRQ_EXCEPTION));
-        FPA.createFunction(FPA.toAddr(IRQ_EXCEPTION), "DC_IRQ_EXCEPTION");
+        InputStream RAW_STREAM = PROVIDER.getInputStream(0L);
+        DC_GDRom.CREATE_BASE_SEGMENT(FPA, RAW_STREAM, "RAM", DC_ENTRY_POINT, RAM_SIZE, true, true, LOG);
     }
 
     public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) throws IOException
@@ -159,7 +144,9 @@ public class DC_Loader extends DC_GDRom
         /* IN THIS CONTEXT, THIS ALLOWS THE PROGRAM TO INHERIT THE METHOS FROM */
         /* THIS FUNCTION TO USE ELSEWHERE */
 
-        List<Option> DEFAULT_LIST = super.getDefaultOptions(BYTE_PROVIDER, LOAD_SPEC, DOMAIN, IS_LOADED);
+        List<Option> DEFAULT_LIST = new ArrayList<>();
+
+        DEFAULT_LIST = super.getDefaultOptions(BYTE_PROVIDER, LOAD_SPEC, DOMAIN, IS_LOADED);
         return DEFAULT_LIST;
     }
 
@@ -169,11 +156,9 @@ public class DC_Loader extends DC_GDRom
     @Override
     public String validateOptions(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM)
     {
-        String OPTION_NAME;
-
         for(Option OPTION : OPTIONS)
         {
-            OPTION_NAME = OPTION.getName();
+            String OPTION_NAME = OPTION.getName();
 
             if(OPTION_NAME.equals(DC_OPTION_NAME))
             {
@@ -182,6 +167,22 @@ public class DC_Loader extends DC_GDRom
             }
         }
 
-        return null;
+        return super.validateOptions(PROVIDER, LOAD_SPEC, OPTIONS, PROGRAM);
+    }
+
+    public boolean IS_GDI(ByteProvider PROVIDER) throws IOException
+    {
+        String SIG = "DREAMCAST";
+
+        if(PROVIDER.length() >= SIG.length())
+        {
+            byte[] SIG_ARRAY = PROVIDER.readBytes(0, SIG.length());
+            if(Arrays.equals(SIG_ARRAY, SIG.getBytes()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 } 
