@@ -47,7 +47,7 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 
-public abstract class DC_Loader extends AbstractLibrarySupportLoader
+public class DC_Loader extends AbstractLibrarySupportLoader
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
@@ -83,7 +83,8 @@ public abstract class DC_Loader extends AbstractLibrarySupportLoader
     
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
-    public static String GET_BASE_NAME()
+    @Override
+    public String getName()
     {
         return DC_LOADER;
     }
