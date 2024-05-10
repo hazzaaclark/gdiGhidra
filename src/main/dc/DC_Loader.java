@@ -42,6 +42,7 @@ import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
+import ghidra.util.database.DBCachedObjectStoreFactory.LongDBFieldCodec;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
@@ -65,6 +66,8 @@ public class DC_Loader extends AbstractLibrarySupportLoader
     public static final String DC_ID = "HKIT 3030";
     private static final String DC_OPTION_NAME = "DREAMCAST OPTIONS: ";
 
+    protected static final long RAM_KB = 1024;
+    protected static final long RAM_MB = RAM_KB * RAM_KB;
     public static long DC_ENTRY_POINT; 
     public static long DC_VBR_ENTRY = 0x8C00F4000L;
     public static long SIZE;
@@ -103,36 +106,15 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 
         /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
 
-        List<LoadSpec> NEW_SPECS = new ArrayList<>();
-
-        LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
-
-        NEW_SPECS.add(new LoadSpec(GDI, DC_BASE_ADDRESS, CPU_SPEC_PAIR, true));
-        return NEW_SPECS;
-
-    }
-    
-    /* RUNS A COROUTINE CHECK TO DETERMINE THE CORRESPONDING LOAD SPECIFICATIONS */
-    /* FROM THE DREAMCAST'S LANGUAGE COMPILER */
-
-    public Collection<LoadSpec> LOAD_SUPPORTED_SPECS(ByteProvider BYTE_PROVIDER, BinaryReader READER, long READER_LEN) throws IOException
-    {
         List<LoadSpec> LOAD_SPECS = new ArrayList<>();
-        LanguageCompilerSpecPair CPU_SPEC_PAIR = new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID);
 
-        // ASSUMES THE BITWISE LENGTH OF READING FROM 16 BIT AND 32 BIT REGISTERS
-        // RELATIVE TO A 2KB FLAG
+        BinaryReader READER = new BinaryReader(BYTE, true);
 
-        int[] READER_SIZE = {16 * 2048, 32 * 2048};
+        SIZE = READER.length();
 
-        READER_LEN = READER.length();
-
-        // PROVIDED AN ARBITARY VALUE TO REPRESENT THE READER SIZE
-        // ASSUME THAT THE SIZE MATCHES, LOAD THE SPECIFIED SPECS FROM THE BINARY
-
-        for (int SIZES : READER_SIZE)
+        if(SIZE == RAM_MB || SIZE == RAM_MB * 2)
         {
-            LOAD_SPECS.add(new LoadSpec(null, READER_LEN, CPU_SPEC_PAIR, true));
+            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID), true));
         }
 
         return LOAD_SPECS;
