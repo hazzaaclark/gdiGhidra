@@ -52,7 +52,6 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 {
     /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
 
-    public static DC_GDRom GDI;
     public static int SEEK_SET = 0;
     public static int SEEK_CUR = 1;
     public static int SEEK_END = 2;
@@ -114,7 +113,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 
         if(SIZE == RAM_MB || SIZE == RAM_MB * 2)
         {
-            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID), true));
+            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(CPU_ID, CPU_SPEC_ID), false));
         }
 
         return LOAD_SPECS;
@@ -129,13 +128,9 @@ public class DC_Loader extends AbstractLibrarySupportLoader
         FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM_BASE);
 
         CREATE_SEGMENTS(FPA, LOG);
-        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "ROM", 0xA000000L, DC_BASE_ADDR, false, false, LOG);
-        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "FLASH_ROM", 0xA02000000L, DC_BASE_ADDR, true, false, LOG);
-        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM64", 0x84000000L, DC_BASE_ADDR, false, false, LOG);
-        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "VRAM32", 0x85000000L, DC_BASE_ADDR, false, false, LOG);
 
         INPUT_STREAM = PROVIDER.getInputStream(0L);
-        GDI.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE_ADDRESS, false, false, LOG);
+        DC_GDRom.CREATE_BASE_SEGMENT(FPA, INPUT_STREAM, "BASE", DC_BASE_ADDR, DC_BASE_ADDRESS, true, true, LOG);
 
         /* AFTER ALL OF THE ABOVE PRE-REQUISITES HAVE BEEN ESTABLISHED */
         /* THE ABSTRACT LOADER WILL NOW BEGIN TO INITIALISE THE ENTRY POINT */
@@ -161,17 +156,17 @@ public class DC_Loader extends AbstractLibrarySupportLoader
 
     public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) throws IOException
     {
-        GDI.CCR_SEGMENTS(FPA, LOG);
-        GDI.UBC_SEGMENTS(FPA, LOG);
-        GDI.BSC_SEGMENTS(FPA, LOG);
-        GDI.DMA_SEGMENTS(FPA, LOG);
-        GDI.CPG_SEGMENTS(FPA, LOG);
-        GDI.RTC_SEGMENTS(FPA, LOG);
-        GDI.INTC_SEGMENTS(FPA, LOG);
-        GDI.TMU_SEGMENTS(FPA, LOG);
-        GDI.SCI_SEGMENTS(FPA, LOG);
-        GDI.SCIF_SEGMENTS(FPA, LOG);
-        GDI.HUDI_SEGMENTS(FPA, LOG);
+        DC_GDRom.CCR_SEGMENTS(FPA, LOG);
+        DC_GDRom.UBC_SEGMENTS(FPA, LOG);
+        DC_GDRom.BSC_SEGMENTS(FPA, LOG);
+        DC_GDRom.DMA_SEGMENTS(FPA, LOG);
+        DC_GDRom.CPG_SEGMENTS(FPA, LOG);
+        DC_GDRom.RTC_SEGMENTS(FPA, LOG);
+        DC_GDRom.INTC_SEGMENTS(FPA, LOG);
+        DC_GDRom.TMU_SEGMENTS(FPA, LOG);
+        DC_GDRom.SCI_SEGMENTS(FPA, LOG);
+        DC_GDRom.SCIF_SEGMENTS(FPA, LOG);
+        DC_GDRom.HUDI_SEGMENTS(FPA, LOG);
     }
 
     /* LOAD THE DEFAULT OPTIONS UPON LOADING A ROM */
@@ -185,7 +180,7 @@ public class DC_Loader extends AbstractLibrarySupportLoader
         /* IN THIS CONTEXT, THIS ALLOWS THE PROGRAM TO INHERIT THE METHOS FROM */
         /* THIS FUNCTION TO USE ELSEWHERE */
 
-        List<Option> DEFAULT_LIST = new ArrayList<>();
+        List<Option> DEFAULT_LIST = super.getDefaultOptions(BYTE_PROVIDER, LOAD_SPEC, DOMAIN, IS_LOADED);
         return DEFAULT_LIST;
     }
 
