@@ -12,6 +12,10 @@
 /* SEE SEGA DREAMCAST HARDWARE SPECIFICATION SECTION 6: */
 /* https://segaretro.org/images/8/8b/Dreamcast_Hardware_Specification_Outline.pdf#page=35 */
 
+/* 12/05/24 - USEFUL LINKS I FEEL AS THOUGH WOULD BE USEFUL IN DUE COURSE */
+/* https://segaretro.org/images/7/78/DreamcastDevBoxSystemArchitecture.pdf  */
+/* https://segaretro.org/ROM_header#Dreamcast */
+
 package gdi;
 
 /* NESTED INCLUDES */
