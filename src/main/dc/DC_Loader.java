@@ -38,12 +38,10 @@ import ghidra.util.task.TaskMonitor;
 
 public class DC_Loader extends DC_GDRom
 {
-    /* SEEK VALUES FOR VECTOR TABLE HEADER CHECKSUM */
-
-    public static int SEEK_SET = 0;
-    public static int SEEK_CUR = 1;
-    public static int SEEK_END = 2;
-    public static int SEEK_TYPE;
+    public static final int DC_INVALID = -1;
+    public static final int DC_CDI = 0;
+    public static final int DC_GDI = 1;
+    public static int DC_LOAD_TYPE = DC_INVALID;
 
     /* DE FACTO STANDARD HEX VALUES FOR CD-ROMS  */
 
@@ -66,7 +64,6 @@ public class DC_Loader extends DC_GDRom
     {
         return "Dreamcast GDI Loader";
     }
-
 
     /* THIS FUNCTIONS PERTAINS TO THE WAY IN WHICH THE GHIDRA BINARY READER */
     /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
