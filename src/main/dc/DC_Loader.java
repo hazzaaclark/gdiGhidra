@@ -19,6 +19,7 @@ package gdi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,8 +40,7 @@ import ghidra.util.task.TaskMonitor;
 public class DC_Loader extends DC_GDRom
 {
     public static final int DC_INVALID = -1;
-    public static final int DC_CDI = 0;
-    public static final int DC_GDI = 1;
+    public static final int DC_GDI = 0;
     public static int DC_LOAD_TYPE = DC_INVALID;
 
     /* DE FACTO STANDARD HEX VALUES FOR CD-ROMS  */
@@ -52,10 +52,8 @@ public class DC_Loader extends DC_GDRom
 
     protected static final long RAM_KB = 1024;
     protected static final long RAM_MB = RAM_KB * RAM_KB;
+
     public static long DC_ENTRY_POINT = 0x8C000000L;
-    public static final long VBR_EXCEPTION = DC_ENTRY_POINT + 0x100;
-    public static final long TLB_EXCEPTION = DC_ENTRY_POINT + 0x400;
-    public static final long IRQ_EXCEPTION = DC_ENTRY_POINT + 0x600;
     
     /* RETURN THE NAME OF THE PLUGIN LOADER */
 
@@ -69,28 +67,51 @@ public class DC_Loader extends DC_GDRom
     /* WILL PARSE THE INFORMATION. THIS DETERMINES THE INITIALISATION OF THE BINARY READER */
     /* AND WILL LOAD THE CORRESPONDENCE FROM THE DISK */
 
-        @Override
-        public Collection<LoadSpec> findSupportedLoadSpecs(ByteProvider BYTE) throws IOException
+    @Override
+    public Collection<LoadSpec> findSupportedLoadSpecs(ByteProvider BYTE) throws IOException
+    {
+        List<LoadSpec> LOAD_SPECS = new ArrayList<>();
+
+        /* FIRST AND FOREMOST, CHECK TO DETERMINE THE CORRESPONDING FILE EXTENSION */
+
+        if(IS_DREAMCAST_ROM(BYTE))
         {
-            /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
-            /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
-            /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
-
-            /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
-
-            List<LoadSpec> LOAD_SPECS = new ArrayList<>();
-
-            BinaryReader READER = new BinaryReader(BYTE, true);
-        
-            long SIZE = READER.length();
-
-            if(SIZE == 16 * 1024 * 1024 || SIZE == 32 * 1024 * 1024)
-            {
-                LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SuperH4:LE:32:default", "default"), true));
-            }
-
-            return LOAD_SPECS;
+            DC_LOAD_TYPE = DC_GDI;
         }
+
+        /* CONCATENATE A NEW LIST FROM THE LOAD SPECIFICATION FUNCTION CALL FROM GHIDRA */
+        /* ACCORDING TO OFFICIAL GHIDRA DOCS, THIS LOOKS FOR THE DESIGNATED PRE-COMPILER LOADER */
+        /* AS WELL AS LOOKING FOR THE BASE OF THE IMAGE TO DETERMINE HOW IT CAN BE DECOMPILED */
+
+        /* SEE: https://github.com/NationalSecurityAgency/ghidra/blob/master/Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/LoadSpec.java */
+
+        if(DC_LOAD_TYPE != DC_INVALID)
+        {
+            LOAD_SPECS.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("SuperH4:LE:32:default", "default"), true));
+        }
+
+        return LOAD_SPECS;
+    }
+
+    /* BRUTE FORCE ARBITRARY CHECKER TO DETERMINE IF THE FILE EXT IS A REAL DREAMCAST ROM */
+    /* BASED ON THE HARDWARE IDENTIFIER */
+    
+    public boolean IS_DREAMCAST_ROM(ByteProvider PROVIDER) throws IOException
+    {
+        String SEGA_SIGNATURE = "SEGA SEGAKATANA";
+
+        if(PROVIDER.length() >= SEGA_SIGNATURE.length())
+        {
+            byte[] SIGNATURE = PROVIDER.readBytes(0, SEGA_SIGNATURE.length());
+
+            if(Arrays.equals(SIGNATURE, SEGA_SIGNATURE.getBytes()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /* LOAD THE SUPPORTED SEGMENTS BASED ON A COUROUTINE CHECK FROM THE API */
     /* SUCH THAT IT IS ABLE TO RECONGISE THE STREAM OF MEMORY FROM THE ROM */
