@@ -20,6 +20,7 @@ import ghidra.program.model.address.*;
 import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
+import ghidra.sleigh.grammar.SleighParser_SemanticParser.statement_return;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
@@ -80,6 +81,19 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
     public static long SP_INIT_CONSTRUCT = 0;
     public static long SP_OFFSET_CONSTRUCT = 0;
 
+    /* 13/05/24 - NEW DEFINES TO ILLUSTRATE THE MEMORY MAP OF THE SUPERH4 */
+
+    public static final long SH4_P0_FIRST = 0x00000000;
+    public static final long SH4_P0_LAST = 0x7FFFFFFF;
+    public static final long SH4_P1_FIRST = 0x80000000;
+    public static final long SH4_P1_LAST = 0x9FFFFFFF;
+    public static final long SH4_P2_FIRST = 0xA0000000;
+    public static final long SH4_P2_LAST = 0xBFFFFFFF;
+    public static final long SH4_P3_FIRST = 0xC0000000;
+    public static final long SH4_P3_LAST = 0xDFFFFFFF;
+    public static final long SH4_P4_FIRST = 0xE0000000;
+    public static final long SH4_P4_LAST = 0xFFFFFFFF;
+
     /* PARSE THE DATA RELATIVE TO THE HITACHI S4'S FUNCTIONALITY */
     /* THIS TAKES INTO ACCOUNT THE 32 BITWISE LENGTH OF THE CPU */
     /* AND THEIR RESPECTIVE REGISTERS AND THEIR INNATE FUNCTIONS */
@@ -112,9 +126,9 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
     /* THE FLAG VALUE */
     /* AND BOOLEAN EXPRESSIONS TO DETERMINE WHETHER ALL OF THE ABOVE HAS BEEN ACCOUNTED FOR */
 
-        /* FROM HERE, I AM ABLE TO ACCESS ALL OF THE PRE-REQUISITIES */
-        /* ESTABLISHED IN THIS CORRESPONDING FILE */
-        /* ALL WITHIN THE INTEREST OF BEING ABLE TO LOAD THESE SEGMENT STREAMS INTO THE API */
+    /* FROM HERE, I AM ABLE TO ACCESS ALL OF THE PRE-REQUISITIES */
+    /* ESTABLISHED IN THIS CORRESPONDING FILE */
+    /* ALL WITHIN THE INTEREST OF BEING ABLE TO LOAD THESE SEGMENT STREAMS INTO THE API */
 
     public static void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, long ADDRESS, long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
     {
