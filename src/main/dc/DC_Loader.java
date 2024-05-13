@@ -125,27 +125,7 @@ public class DC_Loader extends DC_GDRom
     @Override
     protected void load(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG) throws CancelledException, IOException
     {
-        FlatProgramAPI FPA = new FlatProgramAPI(PROGRAM);
-
-        CREATE_SEGMENTS(FPA, LOG);
-
-        InputStream RAW_STREAM = PROVIDER.getInputStream(0L);
-        DC_GDRom.CREATE_SEGMENT(FPA, RAW_STREAM, "RAM", DC_ENTRY_POINT, RAM_SIZE, true, true, LOG);
-    }
-
-    public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
-    {
-        DC_GDRom.CCR_SEGMENTS(FPA, LOG);
-        DC_GDRom.UBC_SEGMENTS(FPA, LOG);
-        DC_GDRom.BSC_SEGMENTS(FPA, LOG);
-        DC_GDRom.DMA_SEGMENTS(FPA, LOG);
-        DC_GDRom.CPG_SEGMENTS(FPA, LOG);
-        DC_GDRom.RTC_SEGMENTS(FPA, LOG);
-        DC_GDRom.INTC_SEGMENTS(FPA, LOG);
-        DC_GDRom.TMU_SEGMENTS(FPA, LOG);
-        DC_GDRom.SCI_SEGMENTS(FPA, LOG);
-        DC_GDRom.SCIF_SEGMENTS(FPA, LOG);
-        DC_GDRom.HUDI_SEGMENTS(FPA, LOG);
+        
     }
 
     /* LOAD THE DEFAULT OPTIONS UPON LOADING A ROM */
@@ -174,7 +154,7 @@ public class DC_Loader extends DC_GDRom
 
     /* CREATE A MEMORY MAP REGION IN RELATION TO THE CORRESPONDENCE OF THE CPU AND CONSOLE */
 
-    public void CREATE_MEMORY_REGION(String MAP_NAME, long START_ADDR, long END_ADDR, boolean READ, boolean WRITE, boolean EXECUTE, Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG)
+    public static void CREATE_MEMORY_REGION(String MAP_NAME, long START_ADDR, long END_ADDR, boolean READ, boolean WRITE, boolean EXECUTE, Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG)
     {
         try
         {
@@ -189,6 +169,30 @@ public class DC_Loader extends DC_GDRom
             MEM.setWrite(WRITE);
             MEM.setExecute(EXECUTE);
 
+        }
+
+        catch(Exception E)
+        {
+            LOG.appendException(E);
+        }
+    }
+
+    /* NOW WE CAN BEGIN TO CREATE THE ACTUAL MEMORY MAP  */
+    /* THIS WILL GOVERN ALL ASPECTS OF THE ASSOCIATION, COVERING ALL 7 AREAS OF THE GOVERNABLE MEMORY SPACE */
+
+    /* SEE: https://mc.pp.se/dc/memory.html  */
+
+    /* THIS IS TRYING ANOTHER APPROACH TO DEFINING THE SEGMENTS NECESSARY FOR APPENDING MEMORY REGIONS WITHIN  */
+    /* THE COMPILER SPEC OF THE SH4 */
+
+    /* WHEREBY THIS LOOKS FOR THE OVERARCHING MEMORY THAT COMMUNICATES WITH THE BUS RATHER THAN DEDICATED */
+    /* HARDCODED VALUES FOR THE REGISTERS */
+
+    public static void CREATE_DREAMCAST_MEMORY_MAP(Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG)
+    {
+        try
+        {
+            CREATE_MEMORY_REGION("Boot ROM", 0x00000000, 0x03FFFFFF, true, false, true, PROGRAM, MONITOR, LOG);
         }
 
         catch(Exception E)
