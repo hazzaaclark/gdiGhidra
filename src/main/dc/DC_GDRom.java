@@ -130,27 +130,11 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
     /* ESTABLISHED IN THIS CORRESPONDING FILE */
     /* ALL WITHIN THE INTEREST OF BEING ABLE TO LOAD THESE SEGMENT STREAMS INTO THE API */
 
-    public static void CREATE_BASE_SEGMENT(FlatProgramAPI FPA, InputStream STREAM, String NAME, long ADDRESS, long SIZE, boolean WRTIE, boolean EXEC, MessageLog LOG)
-    {
-        CCR_SEGMENTS(FPA, LOG);
-        UBC_SEGMENTS(FPA, LOG);
-        BSC_SEGMENTS(FPA, LOG);
-        UBC_SEGMENTS(FPA, LOG);
-        DMA_SEGMENTS(FPA, LOG);
-        CPG_SEGMENTS(FPA, LOG);
-        RTC_SEGMENTS(FPA, LOG);
-        INTC_SEGMENTS(FPA, LOG);
-        TMU_SEGMENTS(FPA, LOG);
-        SCI_SEGMENTS(FPA, LOG);
-        SCIF_SEGMENTS(FPA, LOG);
-        HUDI_SEGMENTS(FPA, LOG);
-    }
-
     /* CONDITION CODE REGISTER SEGMENTS */
 
     public static final void CCR_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
-        CREATE_BASE_SEGMENT(FPA, null, "CCR", 0xFF000000L, 0x48, true, false, LOG);
+        CREATE_SEGMENT(FPA, null, "CCR", 0xFF000000L, 0x48, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF000000L, "CCR_PTEH", "Page Table Entry Address HI", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF000004L, "CCR_PTEL", "Page Table Entry Address LO", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF000008L, "CCR_TTB", "Translation Table Base Register", LOG);
@@ -173,7 +157,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
     public static final void UBC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
-        CREATE_BASE_SEGMENT(FPA, null, "UBC", 0xFF200000L, 0x24, true, false, LOG);
+        CREATE_SEGMENT(FPA, null, "UBC", 0xFF200000L, 0x24, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF200000L, "UBC_BARA", "Break Address Register A", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF200004L, "UBC_BAMRA", "Break Address Mask Register A", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF200008L, "UBC_BBRA", "Break Bus Cycle Register A", LOG);
@@ -189,7 +173,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
     public static final void BSC_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
-        CREATE_BASE_SEGMENT(FPA, null, "BSC", 0xFF8000000L, 0x4C, true, false, LOG);
+        CREATE_SEGMENT(FPA, null, "BSC", 0xFF8000000L, 0x4C, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF8000000L, "BSC_R1", "Bus Control Register 1", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF8000004L, "BSC_R2", "Bus Control Register 2", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFF8000008L, "BSC_WCR1", "Wait Control Register 1", LOG);
@@ -212,7 +196,7 @@ public abstract class DC_GDRom extends AbstractLibrarySupportLoader
 
     public static final void DMA_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG)
     {
-        CREATE_BASE_SEGMENT(FPA, null, "DMA", 0xFFA00000L, 0x44, true, false, LOG);
+        CREATE_SEGMENT(FPA, null, "DMA", 0xFFA00000L, 0x44, true, false, LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFA00000L, "DMA_SAR0", "DMA Source Address Register 0", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFA00004L, "DMA_DAR0", "DMA Destination Address Register 0", LOG);
         CREATE_BITWISE_CONST(FPA, 0xFFA00008L, "DMA_TCR0", "DMA Transfer Count Register 0", LOG);
