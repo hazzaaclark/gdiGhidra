@@ -29,6 +29,7 @@ import java.util.List;
 
 /* GHIDRA INCLUDES */
 
+import ghidra.program.model.address.Address;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -38,6 +39,7 @@ import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.mem.MemoryBlock;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
@@ -128,7 +130,7 @@ public class DC_Loader extends DC_GDRom
         CREATE_SEGMENTS(FPA, LOG);
 
         InputStream RAW_STREAM = PROVIDER.getInputStream(0L);
-        DC_GDRom.CREATE_BASE_SEGMENT(FPA, RAW_STREAM, "RAM", DC_ENTRY_POINT, RAM_SIZE, true, true, LOG);
+        DC_GDRom.CREATE_SEGMENT(FPA, RAW_STREAM, "RAM", DC_ENTRY_POINT, RAM_SIZE, true, true, LOG);
     }
 
     public static void CREATE_SEGMENTS(FlatProgramAPI FPA, MessageLog LOG) 
@@ -147,7 +149,7 @@ public class DC_Loader extends DC_GDRom
     }
 
     /* LOAD THE DEFAULT OPTIONS UPON LOADING A ROM */
-    /* IN THE CASE OF GHIDRA, THIS WILL PROMPT THE USER WILL APPLYING THE NECESSARY CONFIGURATIONS TO LOAD */
+    /* IN THE CASE OF GHIDRA, THIS WILL PROMPT THE USER WILL APPLYING TH    E NECESSARY CONFIGURATIONS TO LOAD */
     /* THE CORRESPONDING TYPES */
 
     @Override
@@ -168,5 +170,30 @@ public class DC_Loader extends DC_GDRom
     public String validateOptions(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM)
     {
         return super.validateOptions(PROVIDER, LOAD_SPEC, OPTIONS, PROGRAM);
+    }
+
+    /* CREATE A MEMORY MAP REGION IN RELATION TO THE CORRESPONDENCE OF THE CPU AND CONSOLE */
+
+    public void CREATE_MEMORY_REGION(String MAP_NAME, long START_ADDR, long END_ADDR, boolean READ, boolean WRITE, boolean EXECUTE, Program PROGRAM, TaskMonitor MONITOR, MessageLog LOG)
+    {
+        try
+        {
+            Address ADDR;
+            MemoryBlock MEM;
+
+            MAP_NAME = MAP_NAME.replaceAll("\\s+","_");
+
+            ADDR = PROGRAM.getAddressFactory().getDefaultAddressSpace().getAddress(START_ADDR);
+            MEM = PROGRAM.getMemory().createInitializedBlock(MAP_NAME, ADDR, END_ADDR-START_ADDR, (byte)0x00, MONITOR, false);
+            MEM.setRead(READ);
+            MEM.setWrite(WRITE);
+            MEM.setExecute(EXECUTE);
+
+        }
+
+        catch(Exception E)
+        {
+            LOG.appendException(E);
+        }
     }
 } 
