@@ -157,9 +157,7 @@ public class DC_Loader extends DC_GDRom
         /* IN THIS CONTEXT, THIS ALLOWS THE PROGRAM TO INHERIT THE METHOS FROM */
         /* THIS FUNCTION TO USE ELSEWHERE */
 
-        List<Option> DEFAULT_LIST = new ArrayList<>();
-
-        DEFAULT_LIST = super.getDefaultOptions(BYTE_PROVIDER, LOAD_SPEC, DOMAIN, IS_LOADED);
+        List<Option> DEFAULT_LIST = super.getDefaultOptions(BYTE_PROVIDER, LOAD_SPEC, DOMAIN, IS_LOADED);
         return DEFAULT_LIST;
     }
 
@@ -169,17 +167,6 @@ public class DC_Loader extends DC_GDRom
     @Override
     public String validateOptions(ByteProvider PROVIDER, LoadSpec LOAD_SPEC, List<Option> OPTIONS, Program PROGRAM)
     {
-        for(Option OPTION : OPTIONS)
-        {
-            String OPTION_NAME = OPTION.getName();
-
-            if(OPTION_NAME.equals(DC_OPTION_NAME))
-            {
-                DC_INIT = Long.decode((String)OPTION.getValue());
-                break;
-            }
-        }
-
         return super.validateOptions(PROVIDER, LOAD_SPEC, OPTIONS, PROGRAM);
     }
 } 
